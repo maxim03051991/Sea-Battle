@@ -20,6 +20,7 @@ namespace Sea_Battle.services
             PlayerBoard = new GameBoard(true);  // Поле игрока
             ComputerBoard = new GameBoard(false); // Поле компьютера
             State = GameState.Setup;
+            GameStateChanged?.Invoke(); // Уведомить о начальном состоянии
         }
 
         public void StartGame()
@@ -64,12 +65,26 @@ namespace Sea_Battle.services
             if (result == CellState.Hit && ComputerBoard.AllShipsSunk())
             {
                 State = GameState.PlayerWon;
+                GameStateChanged?.Invoke();
             }
-            else if (result != CellState.Hit)
+            else if (result == CellState.Miss) // Только при промахе передаем ход
             {
                 IsPlayerTurn = false;
-                // Даем компьютеру сделать ход с задержкой
-                Task.Delay(1000).ContinueWith(_ => ComputerShoot(), TaskScheduler.FromCurrentSynchronizationContext());
+                GameStateChanged?.Invoke(); // Уведомляем об изменении хода
+
+                // Компьютер ходит с задержкой
+                Task.Delay(1000).ContinueWith(_ =>
+                {
+                    System.Windows.Application.Current.Dispatcher.Invoke(() =>
+                    {
+                        ComputerShoot();
+                    });
+                }, TaskScheduler.FromCurrentSynchronizationContext());
+            }
+            else if (result == CellState.Hit)
+            {
+                // Игрок попал, но игра продолжается - ход остается у игрока
+                GameStateChanged?.Invoke();
             }
 
             return true;
@@ -97,30 +112,33 @@ namespace Sea_Battle.services
             {
                 row = rand.Next(0, 10);
                 col = rand.Next(0, 10);
-                result = PlayerBoard.Shoot(row, col);
-            } while (result == CellState.Miss || result == CellState.Hit);
+            } while (PlayerBoard.Cells[row, col].State == CellState.Miss ||
+                     PlayerBoard.Cells[row, col].State == CellState.Hit);
+
+            result = PlayerBoard.Shoot(row, col);
 
             if (result == CellState.Hit && PlayerBoard.AllShipsSunk())
             {
                 State = GameState.ComputerWon;
-                // Уведомляем об изменении состояния
-                GameStateChanged?.Invoke();
             }
-            else if (result != CellState.Hit)
+            else if (result == CellState.Miss)
             {
-                IsPlayerTurn = true;
+                IsPlayerTurn = true; // Передаем ход игроку
             }
-            else
+            else if (result == CellState.Hit)
             {
-                // Компьютер попал - ходит снова через Dispatcher
-                var dispatcher = System.Windows.Application.Current.Dispatcher;
-                dispatcher.BeginInvoke(new Action(() =>
+                // Компьютер попал - ходит снова
+                // Небольшая пауза перед следующим выстрелом
+                Task.Delay(800).ContinueWith(_ =>
                 {
-                    ComputerShoot();
-                }), System.Windows.Threading.DispatcherPriority.Background);
+                    System.Windows.Application.Current.Dispatcher.Invoke(() =>
+                    {
+                        ComputerShoot();
+                    });
+                }, TaskScheduler.FromCurrentSynchronizationContext());
             }
 
-            // Уведомляем об изменениях
+            // Всегда уведомляем об изменениях
             GameStateChanged?.Invoke();
         }
 

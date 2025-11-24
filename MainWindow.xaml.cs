@@ -48,18 +48,6 @@ namespace Sea_Battle
             UpdateStatus();
             UpdateBoards();
 
-            // Если ход компьютера и игра продолжается
-            if (!_gameManager.IsPlayerTurn && _gameManager.State == GameState.Playing)
-            {
-                // Даем компьютеру сделать ход с небольшой задержкой для лучшего UX
-                Task.Delay(800).ContinueWith(t =>
-                {
-                    System.Windows.Application.Current.Dispatcher.Invoke(() =>
-                    {
-                        _gameManager.ComputerShoot();
-                    });
-                });
-            }
         }
 
         public ObservableCollection<Cell> PlayerCells { get; set; } = new ObservableCollection<Cell>();
