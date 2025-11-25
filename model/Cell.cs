@@ -13,10 +13,22 @@ namespace Sea_Battle.model
     public class Cell : INotifyPropertyChanged
     {
         private CellState _state;
+        private bool _isPlayerBoard;
 
         public int Row { get; set; }
         public int Column { get; set; }
         public Ship Ship { get; set; }
+
+        public bool IsPlayerBoard
+        {
+            get => _isPlayerBoard;
+            set
+            {
+                _isPlayerBoard = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(DisplayText));
+            }
+        }
 
         public CellState State
         {
@@ -35,7 +47,7 @@ namespace Sea_Battle.model
             {
                 return State switch
                 {
-                    CellState.Ship => "■",    // Корабль (только на своем поле)
+                    CellState.Ship => IsPlayerBoard ? "■" : "",    // Корабль (только на своем поле)
                     CellState.Hit => "X",     // Попадание
                     CellState.Miss => "•",    // Промах
                     _ => ""                   // Пустота

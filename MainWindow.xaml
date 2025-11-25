@@ -87,7 +87,7 @@
                                                 <Setter Property="Background" Value="Red"/>
                                             </DataTrigger>
                                             <DataTrigger Binding="{Binding State}" Value="Miss">
-                                                <Setter Property="Background" Value="White"/>
+                                           
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>

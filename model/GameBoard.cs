@@ -29,7 +29,12 @@ namespace Sea_Battle.model
             {
                 for (int j = 0; j < Size; j++)
                 {
-                    Cells[i, j] = new Cell { Row = i, Column = j };
+                    Cells[i, j] = new Cell
+                    {
+                        Row = i,
+                        Column = j,
+                        IsPlayerBoard = this.IsPlayerBoard
+                    };
                 }
             }
         }
