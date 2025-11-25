@@ -14,15 +14,19 @@ namespace Sea_Battle.model
     public class GameViewModel : INotifyPropertyChanged
     {
         private GameManager _gameManager;
-        private string _statusText;
-        private string _startButtonText;
+        private ManualShipPlacer _shipPlacer;
+        private string _statusText = "";
+        private string _startButtonText = "";
+        private bool _isManualPlacement;
 
         public GameViewModel()
         {
             _gameManager = new GameManager();
+            _shipPlacer = new ManualShipPlacer(_gameManager.PlayerBoard);
             _gameManager.GameStateChanged += OnGameStateChanged;
             StatusText = "Расставьте корабли и начните игру";
-            StartButtonText = "Начать игру"; // начальный текст
+            StartButtonText = "Начать игру";
+            IsManualPlacement = true;
             InitializeCommands();
             UpdateBoards();
         }
@@ -37,11 +41,22 @@ namespace Sea_Battle.model
             }
         }
 
+        public bool IsManualPlacement
+        {
+            get => _isManualPlacement;
+            set
+            {
+                _isManualPlacement = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public ManualShipPlacer ShipPlacer => _shipPlacer;
+
         private void OnGameStateChanged()
         {
             UpdateStatus();
             UpdateBoards();
-
         }
 
         public ObservableCollection<Cell> PlayerCells { get; set; } = new ObservableCollection<Cell>();
@@ -59,15 +74,28 @@ namespace Sea_Battle.model
 
         public ICommand StartGameCommand { get; private set; }
         public ICommand ComputerCellClickCommand { get; private set; }
+        public ICommand PlayerCellClickCommand { get; private set; }
+        public ICommand SelectShipCommand { get; private set; }
+        public ICommand RotateShipCommand { get; private set; }
 
         private void InitializeCommands()
         {
             StartGameCommand = new RelayCommand(StartGame);
             ComputerCellClickCommand = new RelayCommand<Cell>(ComputerCellClick);
+            PlayerCellClickCommand = new RelayCommand<Cell>(PlayerCellClick);
+            SelectShipCommand = new RelayCommand<ShipTemplate>(SelectShip);
+            RotateShipCommand = new RelayCommand(RotateShip);
         }
 
         private void StartGame()
         {
+            // Проверяем, все ли корабли расставлены
+            if (IsManualPlacement && !AllShipsPlaced())
+            {
+                StatusText = "Сначала расставьте все корабли!";
+                return;
+            }
+
             // Если игра уже шла, то пересоздаем GameManager для сброса
             if (_gameManager.State != GameState.Setup)
             {
@@ -75,13 +103,22 @@ namespace Sea_Battle.model
                 _gameManager.GameStateChanged -= OnGameStateChanged;
                 // Создаем новый менеджер
                 _gameManager = new GameManager();
+                _shipPlacer = new ManualShipPlacer(_gameManager.PlayerBoard);
                 _gameManager.GameStateChanged += OnGameStateChanged;
             }
 
+            // Если ручная расстановка, используем уже расставленные корабли
+            // Если автоматическая - расставляем автоматически
+            if (!IsManualPlacement)
+            {
+                _gameManager.AutoPlacePlayerShips();
+            }
+
             _gameManager.StartGame();
+            IsManualPlacement = false;
             UpdateStatus();
             UpdateBoards();
-            StartButtonText = "Начать новую игру"; // после начала игры меняем текст
+            StartButtonText = "Начать новую игру";
         }
 
         private void ComputerCellClick(Cell cell)
@@ -97,9 +134,41 @@ namespace Sea_Battle.model
             }
         }
 
+        private void PlayerCellClick(Cell cell)
+        {
+            if (IsManualPlacement && _shipPlacer.SelectedShip != null)
+            {
+                if (_shipPlacer.PlaceShip(cell.Row, cell.Column))
+                {
+                    UpdateBoards();
+                    UpdateShipCounts();
+
+                    if (AllShipsPlaced())
+                    {
+                        StatusText = "Все корабли расставлены! Нажмите 'Начать игру'";
+                    }
+                }
+                else
+                {
+                    StatusText = "Нельзя разместить корабль здесь!";
+                }
+            }
+        }
+
+        private void SelectShip(ShipTemplate ship)
+        {
+            _shipPlacer.SelectShip(ship);
+            StatusText = $"Выбран {ship.Name}. Кликните на поле для размещения.";
+        }
+
+        private void RotateShip()
+        {
+            _shipPlacer.RotateShip();
+            StatusText = _shipPlacer.IsHorizontal ? "Горизонтальное размещение" : "Вертикальное размещение";
+        }
+
         private void UpdateBoards()
         {
-            // Очищаем и перезаполняем коллекции
             PlayerCells.Clear();
             ComputerCells.Clear();
 
@@ -111,6 +180,17 @@ namespace Sea_Battle.model
                     ComputerCells.Add(_gameManager.ComputerBoard.Cells[i, j]);
                 }
             }
+        }
+
+        private void UpdateShipCounts()
+        {
+            // Уведомляем об изменении счетчиков кораблей
+            OnPropertyChanged(nameof(ShipPlacer));
+        }
+
+        private bool AllShipsPlaced()
+        {
+            return _shipPlacer.AvailableShips.All(ship => ship.Count == 0);
         }
 
         private void UpdateStatus()

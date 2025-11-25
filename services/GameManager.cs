@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 
 namespace Sea_Battle.services
 {
-
     public class GameManager
     {
         public GameBoard PlayerBoard { get; private set; }
@@ -25,16 +24,35 @@ namespace Sea_Battle.services
 
         public void StartGame()
         {
-            // Автоматическая расстановка кораблей
-            AutoPlaceShips(PlayerBoard);
+            // Автоматическая расстановка кораблей компьютера
             AutoPlaceShips(ComputerBoard);
 
             IsPlayerTurn = true;
             State = GameState.Playing;
+            GameStateChanged?.Invoke();
+        }
+
+        public void AutoPlacePlayerShips()
+        {
+            AutoPlaceShips(PlayerBoard);
         }
 
         private void AutoPlaceShips(GameBoard board)
         {
+            // Очищаем существующие корабли
+            board.Ships.Clear();
+            for (int i = 0; i < 10; i++)
+            {
+                for (int j = 0; j < 10; j++)
+                {
+                    if (board.Cells[i, j].State == CellState.Ship)
+                    {
+                        board.Cells[i, j].State = CellState.Empty;
+                        board.Cells[i, j].Ship = null;
+                    }
+                }
+            }
+
             int[] shipSizes = { 4, 3, 3, 2, 2, 2, 1, 1, 1, 1 };
             Random rand = new Random();
 
@@ -143,15 +161,17 @@ namespace Sea_Battle.services
         }
 
         //  уведомления об изменениях
-        public event Action GameStateChanged;
+        public event Action? GameStateChanged;
     }
 
     public enum GameState
-        {
-            Setup,
-            Playing,
-            PlayerWon,
-            ComputerWon
-        }
-    
+    {
+        Setup,
+        Playing,
+        PlayerWon,
+        ComputerWon
+    }
+
 }
+    
+        

@@ -4,19 +4,79 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Sea_Battle"
+        xmlns:model="clr-namespace:Sea_Battle.model"
+        xmlns:services="clr-namespace:Sea_Battle.services"
         mc:Ignorable="d"
-        Title="Морской бой" Height="600" Width="800">
+        Title="Морской бой" Height="700" Width="900">
+
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+        <model:InverseBooleanToVisibilityConverter x:Key="InverseBooleanToVisibilityConverter"/>
+    </Window.Resources>
 
     <Grid Background="WhiteSmoke">
-        <!-- Макет: Заголовок | Игровые поля | Кнопка -->
+        <!-- Макет: Заголовок | Панель кораблей | Игровые поля | Кнопка -->
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
+        <!-- Строка статуса -->
+        <TextBlock Grid.Row="0"
+                   Text="{Binding StatusText}"
+                   FontSize="18" HorizontalAlignment="Center"
+                   Margin="0,10,0,10" FontWeight="Bold"/>
+
+        <!-- Панель кораблей (видна только в режиме расстановки) -->
+        <Border Grid.Row="1" 
+                Background="LightGray" 
+                Padding="10" 
+                Margin="10"
+                CornerRadius="5"
+                Visibility="{Binding IsManualPlacement, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                <TextBlock Text="Доступные корабли: " 
+                           FontSize="14" 
+                           FontWeight="Bold" 
+                           VerticalAlignment="Center"
+                           Margin="0,0,10,0"/>
+
+                <!-- Список доступных кораблей -->
+                <ItemsControl ItemsSource="{Binding ShipPlacer.AvailableShips}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Button Content="{Binding DisplayName}"
+                                    Command="{Binding DataContext.SelectShipCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                    CommandParameter="{Binding}"
+                                    Margin="5,0"
+                                    Padding="10,5"
+                                    FontSize="12"
+                                    Background="LightBlue"
+                                    BorderBrush="DarkBlue"/>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <!-- Кнопка поворота корабля -->
+                <Button Content="Повернуть корабль"
+                        Command="{Binding RotateShipCommand}"
+                        Margin="20,0,0,0"
+                        Padding="10,5"
+                        FontSize="12"
+                        Background="LightGreen"
+                        BorderBrush="DarkGreen"/>
+            </StackPanel>
+        </Border>
+
         <!-- Центрирующий контейнер для полей -->
-        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
 
             <!-- Левое поле (игрок) -->
             <Border BorderBrush="Black" BorderThickness="1" CornerRadius="4" Margin="0,0,20,0">
@@ -48,10 +108,26 @@
                                             </Style.Triggers>
                                         </Style>
                                     </Border.Style>
-                                    <TextBlock Text="{Binding DisplayText}"
-                                               HorizontalAlignment="Center"
-                                               VerticalAlignment="Center"
-                                               FontWeight="Bold"/>
+
+                                    <Grid>
+                                        <Button Command="{Binding DataContext.PlayerCellClickCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                CommandParameter="{Binding}"
+                                                Background="Transparent"
+                                                BorderThickness="0"
+                                                Cursor="Hand"
+                                                Margin="0" Padding="0"
+                                                Visibility="{Binding DataContext.IsManualPlacement, Converter={StaticResource BooleanToVisibilityConverter}, RelativeSource={RelativeSource AncestorType=Window}}">
+                                            <TextBlock Text="{Binding DisplayText}"
+                                                       HorizontalAlignment="Center"
+                                                       VerticalAlignment="Center"
+                                                       FontWeight="Bold"/>
+                                        </Button>
+                                        <TextBlock Text="{Binding DisplayText}"
+                                                   HorizontalAlignment="Center"
+                                                   VerticalAlignment="Center"
+                                                   FontWeight="Bold"
+                                                   Visibility="{Binding DataContext.IsManualPlacement, Converter={StaticResource InverseBooleanToVisibilityConverter}, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                    </Grid>
                                 </Border>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
@@ -86,8 +162,7 @@
                                             </Style.Triggers>
                                         </Style>
                                     </Border.Style>
-                                    <Button Command="{Binding DataContext.ComputerCellClickCommand,
-                                                RelativeSource={RelativeSource AncestorType=Window}}"
+                                    <Button Command="{Binding DataContext.ComputerCellClickCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                                             CommandParameter="{Binding}"
                                             Background="Transparent"
                                             BorderThickness="0"
@@ -106,14 +181,8 @@
             </Border>
         </StackPanel>
 
-        <!-- Строка статуса -->
-        <TextBlock Grid.Row="0"
-                   Text="{Binding StatusText}"
-                   FontSize="18" HorizontalAlignment="Center"
-                   Margin="0,10,0,10" FontWeight="Bold"/>
-
         <!-- Кнопка начала игры -->
-        <Button Grid.Row="2"
+        <Button Grid.Row="3"
                 Content="{Binding StartButtonText}"
                 Command="{Binding StartGameCommand}"
                 HorizontalAlignment="Center" Margin="0,10,0,10"
