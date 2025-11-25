@@ -8,6 +8,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using System.Windows;
 
 namespace Sea_Battle.model
 {
@@ -141,7 +142,8 @@ namespace Sea_Battle.model
                 if (_shipPlacer.PlaceShip(cell.Row, cell.Column))
                 {
                     UpdateBoards();
-                    UpdateShipCounts();
+                    // Принудительно обновляем отображение кораблей
+                    CommandManager.InvalidateRequerySuggested();
 
                     if (AllShipsPlaced())
                     {

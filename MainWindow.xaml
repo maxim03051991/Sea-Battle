@@ -44,25 +44,27 @@
                            Margin="0,0,10,0"/>
 
                 <!-- Список доступных кораблей -->
-                <ItemsControl ItemsSource="{Binding ShipPlacer.AvailableShips}">
-                    <ItemsControl.ItemsPanel>
+                <ListBox ItemsSource="{Binding ShipPlacer.AvailableShips}" 
+         Background="Transparent"
+         BorderThickness="0">
+                    <ListBox.ItemsPanel>
                         <ItemsPanelTemplate>
                             <StackPanel Orientation="Horizontal"/>
                         </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                    <ItemsControl.ItemTemplate>
+                    </ListBox.ItemsPanel>
+                    <ListBox.ItemTemplate>
                         <DataTemplate>
                             <Button Content="{Binding DisplayName}"
-                                    Command="{Binding DataContext.SelectShipCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-                                    CommandParameter="{Binding}"
-                                    Margin="5,0"
-                                    Padding="10,5"
-                                    FontSize="12"
-                                    Background="LightBlue"
-                                    BorderBrush="DarkBlue"/>
+                    Command="{Binding DataContext.SelectShipCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                    CommandParameter="{Binding}"
+                    Margin="5,0"
+                    Padding="10,5"
+                    FontSize="12"
+                    Background="LightBlue"
+                    BorderBrush="DarkBlue"/>
                         </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
+                    </ListBox.ItemTemplate>
+                </ListBox>
 
                 <!-- Кнопка поворота корабля -->
                 <Button Content="Повернуть корабль"
