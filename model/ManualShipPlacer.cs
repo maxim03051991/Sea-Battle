@@ -49,6 +49,7 @@ namespace Sea_Battle.model
             }
         }
 
+
         public bool PlaceShip(int row, int col)
         {
             if (_selectedShip == null || _selectedShip.Count == 0)
@@ -81,6 +82,25 @@ namespace Sea_Battle.model
             _selectedShip = null;
             _isHorizontal = true;
         }
+        public void ClearBoard()
+        {
+            // Очищаем корабли на доске
+            foreach (var ship in _board.Ships.ToList())
+            {
+                foreach (var cell in ship.Cells)
+                {
+                    cell.State = CellState.Empty;
+                    cell.Ship = null;
+                }
+            }
+            _board.Ships.Clear();
+
+            // Сбрасываем доступные корабли
+            Reset();
+        }
+
+
+
     }
 
     public class ShipTemplate : INotifyPropertyChanged
@@ -114,5 +134,7 @@ namespace Sea_Battle.model
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
+
+
     }
 }

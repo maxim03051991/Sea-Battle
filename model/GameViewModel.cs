@@ -90,36 +90,47 @@ namespace Sea_Battle.model
 
         private void StartGame()
         {
-            // Проверяем, все ли корабли расставлены
+            // Если игра уже идет - сбрасываем
+            if (_gameManager.State != GameState.Setup)
+            {
+                ResetGame();
+                return;
+            }
+
+            // Проверяем, все ли корабли расставлены (только для ручной расстановки)
             if (IsManualPlacement && !AllShipsPlaced())
             {
                 StatusText = "Сначала расставьте все корабли!";
                 return;
             }
 
-            // Если игра уже шла, то пересоздаем GameManager для сброса
-            if (_gameManager.State != GameState.Setup)
-            {
-                // Отписываемся от старого менеджера
-                _gameManager.GameStateChanged -= OnGameStateChanged;
-                // Создаем новый менеджер
-                _gameManager = new GameManager();
-                _shipPlacer = new ManualShipPlacer(_gameManager.PlayerBoard);
-                _gameManager.GameStateChanged += OnGameStateChanged;
-            }
-
-            // Если ручная расстановка, используем уже расставленные корабли
-            // Если автоматическая - расставляем автоматически
-            if (!IsManualPlacement)
-            {
-                _gameManager.AutoPlacePlayerShips();
-            }
+            // НИКОГДА не расставляем корабли игрока автоматически
+            // Игрок должен расставить корабли вручную
 
             _gameManager.StartGame();
             IsManualPlacement = false;
             UpdateStatus();
             UpdateBoards();
             StartButtonText = "Начать новую игру";
+        }
+
+        private void ResetGame()
+        {
+            // Сбрасываем менеджер игры
+            _gameManager.ResetGame();
+
+            // Пересоздаем разместитель кораблей и очищаем доску
+            _shipPlacer = new ManualShipPlacer(_gameManager.PlayerBoard);
+
+            // Возвращаем в режим ручной расстановки
+            IsManualPlacement = true;
+
+            // Обновляем интерфейс
+            UpdateStatus();
+            UpdateBoards();
+            StartButtonText = "Начать игру";
+
+            StatusText = "Расставьте корабли и начните игру";
         }
 
         private void ComputerCellClick(Cell cell)

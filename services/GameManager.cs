@@ -20,7 +20,24 @@ namespace Sea_Battle.services
             ComputerBoard = new GameBoard(false); // Поле компьютера
             State = GameState.Setup;
             GameStateChanged?.Invoke(); // Уведомить о начальном состоянии
+
         }
+
+
+        public void ResetGame()
+        {
+            // Создаем новые доски
+            PlayerBoard = new GameBoard(true);
+            ComputerBoard = new GameBoard(false);
+
+            // Сбрасываем состояние игры
+            State = GameState.Setup;
+            IsPlayerTurn = false;
+
+            GameStateChanged?.Invoke();
+        }
+
+
 
         public void StartGame()
         {
