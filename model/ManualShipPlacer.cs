@@ -78,7 +78,13 @@ namespace Sea_Battle.model
 
         public void Reset()
         {
+            // Очищаем доску
+            ClearBoard();
+
+            // Сбрасываем доступные корабли
             InitializeAvailableShips();
+
+            // Сбрасываем состояние
             _selectedShip = null;
             _isHorizontal = true;
         }

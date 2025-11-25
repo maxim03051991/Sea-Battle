@@ -90,7 +90,7 @@ namespace Sea_Battle.model
 
         private void StartGame()
         {
-            // Если игра уже идет - сбрасываем
+            /// Если игра уже идет - сбрасываем
             if (_gameManager.State != GameState.Setup)
             {
                 ResetGame();
@@ -104,13 +104,11 @@ namespace Sea_Battle.model
                 return;
             }
 
-            // НИКОГДА не расставляем корабли игрока автоматически
-            // Игрок должен расставить корабли вручную
-
             _gameManager.StartGame();
             IsManualPlacement = false;
             UpdateStatus();
             UpdateBoards();
+            UpdateShipCounts(); // Обновляем счетчики
             StartButtonText = "Начать новую игру";
         }
 
@@ -122,12 +120,16 @@ namespace Sea_Battle.model
             // Пересоздаем разместитель кораблей и очищаем доску
             _shipPlacer = new ManualShipPlacer(_gameManager.PlayerBoard);
 
+            // Уведомляем об изменении ShipPlacer для обновления привязок в UI
+            OnPropertyChanged(nameof(ShipPlacer));
+
             // Возвращаем в режим ручной расстановки
             IsManualPlacement = true;
 
             // Обновляем интерфейс
             UpdateStatus();
             UpdateBoards();
+            UpdateShipCounts(); // Добавляем обновление счетчиков кораблей
             StartButtonText = "Начать игру";
 
             StatusText = "Расставьте корабли и начните игру";
