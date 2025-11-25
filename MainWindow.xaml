@@ -7,109 +7,116 @@
         mc:Ignorable="d"
         Title="Морской бой" Height="600" Width="800">
 
-    <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition/>
-            <ColumnDefinition Width="39*"/>
-        </Grid.ColumnDefinitions>
+    <Grid Background="WhiteSmoke">
+        <!-- Макет: Заголовок | Игровые поля | Кнопка -->
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <!-- Строка статуса -->
-        <TextBlock Grid.Row="0" Text="{Binding StatusText}" 
-                   FontSize="16" HorizontalAlignment="Left" Margin="380,10,0,10" FontWeight="Bold" Grid.Column="1"/>
+        <!-- Центрирующий контейнер для полей -->
+        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
 
-        <!-- Игровые поля -->
-        <Grid Grid.ColumnSpan="2" Margin="0,41,0,0" Grid.RowSpan="2">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-
-            <!-- Поле игрока -->
-            <StackPanel Grid.Column="0" Margin="10,0">
-                <TextBlock Text="Ваше поле" FontSize="14" HorizontalAlignment="Center" FontWeight="Bold" Margin="0,0,0,5"/>
-                <ItemsControl ItemsSource="{Binding PlayerCells}">
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <UniformGrid Rows="10" Columns="10"/>
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <Border BorderBrush="Black" BorderThickness="0.5" Width="25" Height="25">
-                                <Border.Style>
-                                    <Style TargetType="Border">
-                                        <Setter Property="Background" Value="LightBlue"/>
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding State}" Value="Ship">
-                                                <Setter Property="Background" Value="Gray"/>
-                                            </DataTrigger>
-                                            <DataTrigger Binding="{Binding State}" Value="Hit">
-                                                <Setter Property="Background" Value="Red"/>
-                                            </DataTrigger>
-                                            <DataTrigger Binding="{Binding State}" Value="Miss">
-                                                <Setter Property="Background" Value="White"/>
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </Border.Style>
-                                <TextBlock Text="{Binding DisplayText}" 
-                                           HorizontalAlignment="Center" 
-                                           VerticalAlignment="Center"
-                                           FontWeight="Bold"/>
-                            </Border>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-            </StackPanel>
-
-            <!-- Поле компьютера -->
-            <StackPanel Grid.Column="1" Margin="10,0">
-                <TextBlock Text="Поле противника" FontSize="14" HorizontalAlignment="Center" FontWeight="Bold" Margin="0,0,0,5"/>
-                <ItemsControl ItemsSource="{Binding ComputerCells}">
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <UniformGrid Rows="10" Columns="10"/>
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <Border BorderBrush="Black" BorderThickness="0.5" Width="25" Height="25">
-                                <Border.Style>
-                                    <Style TargetType="Border">
-                                        <Setter Property="Background" Value="LightBlue"/>
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding State}" Value="Hit">
-                                                <Setter Property="Background" Value="Red"/>
-                                            </DataTrigger>
-                                            <DataTrigger Binding="{Binding State}" Value="Miss">
-                                           
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </Border.Style>
-                                <Button Command="{Binding DataContext.ComputerCellClickCommand, 
-                                        RelativeSource={RelativeSource AncestorType=Window}}"
-                                        CommandParameter="{Binding}"
-                                        Background="Transparent" 
-                                        BorderThickness="0"
-                                        Cursor="Hand">
-                                    <TextBlock Text="{Binding DisplayText}" 
+            <!-- Левое поле (игрок) -->
+            <Border BorderBrush="Black" BorderThickness="1" CornerRadius="4" Margin="0,0,20,0">
+                <StackPanel>
+                    <TextBlock Text="Ваше поле" FontSize="16" HorizontalAlignment="Center"
+                               FontWeight="Bold" Margin="0,0,0,10"/>
+                    <ItemsControl ItemsSource="{Binding PlayerCells}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <UniformGrid Rows="10" Columns="10"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border BorderBrush="Black" BorderThickness="0.5" Width="25" Height="25">
+                                    <Border.Style>
+                                        <Style TargetType="Border">
+                                            <Setter Property="Background" Value="LightBlue"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding State}" Value="Ship">
+                                                    <Setter Property="Background" Value="Gray"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding State}" Value="Hit">
+                                                    <Setter Property="Background" Value="Red"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding State}" Value="Miss">
+                                                    <Setter Property="Background" Value="White"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
+                                    <TextBlock Text="{Binding DisplayText}"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center"
                                                FontWeight="Bold"/>
-                                </Button>
-                            </Border>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-            </StackPanel>
-        </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+
+            <!-- Правое поле (компьютер) -->
+            <Border BorderBrush="Black" BorderThickness="1" CornerRadius="4" Margin="20,0,0,0">
+                <StackPanel>
+                    <TextBlock Text="Поле противника" FontSize="16" HorizontalAlignment="Center"
+                               FontWeight="Bold" Margin="0,0,0,10"/>
+                    <ItemsControl ItemsSource="{Binding ComputerCells}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <UniformGrid Rows="10" Columns="10"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border BorderBrush="Black" BorderThickness="0.5" Width="25" Height="25">
+                                    <Border.Style>
+                                        <Style TargetType="Border">
+                                            <Setter Property="Background" Value="LightBlue"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding State}" Value="Hit">
+                                                    <Setter Property="Background" Value="Red"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding State}" Value="Miss">
+                                                    <Setter Property="Background" Value="White"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
+                                    <Button Command="{Binding DataContext.ComputerCellClickCommand,
+                                                RelativeSource={RelativeSource AncestorType=Window}}"
+                                            CommandParameter="{Binding}"
+                                            Background="Transparent"
+                                            BorderThickness="0"
+                                            Cursor="Hand"
+                                            Margin="0" Padding="0">
+                                        <TextBlock Text="{Binding DisplayText}"
+                                                   FontWeight="Bold"
+                                                   HorizontalAlignment="Center"
+                                                   VerticalAlignment="Center"/>
+                                    </Button>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+
+        <!-- Строка статуса -->
+        <TextBlock Grid.Row="0"
+                   Text="{Binding StatusText}"
+                   FontSize="18" HorizontalAlignment="Center"
+                   Margin="0,10,0,10" FontWeight="Bold"/>
 
         <!-- Кнопка начала игры -->
-        <Button Grid.Row="2" Content="{Binding StartButtonText}" Command="{Binding StartGameCommand}"
-        HorizontalAlignment="Left" Margin="320,10,0,10" Padding="20,5" FontSize="14" Grid.Column="1"/>
+        <Button Grid.Row="2"
+                Content="{Binding StartButtonText}"
+                Command="{Binding StartGameCommand}"
+                HorizontalAlignment="Center" Margin="0,10,0,10"
+                Padding="20,5" FontSize="16"/>
     </Grid>
 </Window>
