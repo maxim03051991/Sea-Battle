@@ -8,6 +8,10 @@
         Title="Морской бой" Height="600" Width="800">
 
     <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition Width="39*"/>
+        </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
@@ -16,10 +20,10 @@
 
         <!-- Строка статуса -->
         <TextBlock Grid.Row="0" Text="{Binding StatusText}" 
-                   FontSize="16" HorizontalAlignment="Center" Margin="10" FontWeight="Bold"/>
+                   FontSize="16" HorizontalAlignment="Left" Margin="380,10,0,10" FontWeight="Bold" Grid.Column="1"/>
 
         <!-- Игровые поля -->
-        <Grid Grid.Row="1">
+        <Grid Grid.ColumnSpan="2" Margin="0,41,0,0" Grid.RowSpan="2">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="*"/>
@@ -105,7 +109,7 @@
         </Grid>
 
         <!-- Кнопка начала игры -->
-        <Button Grid.Row="2" Content="Начать игру" Command="{Binding StartGameCommand}"
-                HorizontalAlignment="Center" Margin="10" Padding="20,5" FontSize="14"/>
+        <Button Grid.Row="2" Content="{Binding StartButtonText}" Command="{Binding StartGameCommand}"
+        HorizontalAlignment="Left" Margin="320,10,0,10" Padding="20,5" FontSize="14" Grid.Column="1"/>
     </Grid>
 </Window>
