@@ -1,6 +1,6 @@
 ﻿namespace Sea_Battle.model
 {
-    public enum CellState
+    public enum CellState //перечисление состояний
     {
         Empty,
         Ship,

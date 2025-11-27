@@ -4,13 +4,15 @@ using System.Linq;
 
 namespace Sea_Battle.services
 {
+    //ручная расстановка кораблей
     public class ManualShipPlacer
     {
-        private GameBoard _board;
-        private List<ShipTemplate> _availableShips;
-        private ShipTemplate _selectedShip;
-        private bool _isHorizontal = true;
+        private GameBoard _board; //игровое поле
+        private List<ShipTemplate> _availableShips; //список доступных для размещения кораблей
+        private ShipTemplate _selectedShip;//выбранный в данный момент корабль
+        private bool _isHorizontal = true; //ориентация корабля
 
+        //контруктор принимает игровое поле и инициализирует список доступных кораблей
         public ManualShipPlacer(GameBoard board)
         {
             _board = board;
@@ -24,7 +26,7 @@ namespace Sea_Battle.services
             get => _isHorizontal;
             set => _isHorizontal = value;
         }
-
+        //Создает начальный набор кораблей согласно правилам "Морского боя"
         private void InitializeAvailableShips()
         {
             _availableShips = new List<ShipTemplate>
@@ -35,19 +37,19 @@ namespace Sea_Battle.services
                 new ShipTemplate(1, 4, "1-палубный")
             };
         }
-
+        //Выбирает корабль для размещения
         public void SelectShip(ShipTemplate ship)
         {
             if (ship.Count > 0)
                 _selectedShip = ship;
         }
-
+        //Основной метод размещения корабля
         public bool PlaceShip(int row, int col)
         {
             if (_selectedShip?.Count == 0)
                 return false;
 
-            if (_board.PlaceShip(row, col, _selectedShip.Size, _isHorizontal))
+            if (_board.PlaceShip(row, col, _selectedShip.SizeShip, _isHorizontal))
             {
                 _selectedShip.Count--;
                 if (_selectedShip.Count == 0)
@@ -57,17 +59,17 @@ namespace Sea_Battle.services
 
             return false;
         }
-
+        //ориентацию корабля между горизонтальной и вертикальной
         public void RotateShip() => _isHorizontal = !_isHorizontal;
-
+        //сбрасывает состояние таблицы
         public void Reset()
         {
-            ClearBoard();
+            ClearBoard(); 
             InitializeAvailableShips();
             _selectedShip = null;
             _isHorizontal = true;
         }
-
+        //Очищает доску
         private void ClearBoard()
         {
             foreach (var ship in _board.Ships.ToList())

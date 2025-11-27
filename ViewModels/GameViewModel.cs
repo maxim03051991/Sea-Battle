@@ -10,11 +10,11 @@ namespace Sea_Battle.ViewModels
 {
     public class GameViewModel : INotifyPropertyChanged
     {
-        private GameManager _gameManager;
-        private ManualShipPlacer _shipPlacer;
-        private string _statusText;
-        private string _startButtonText;
-        private bool _isManualPlacement;
+        private GameManager _gameManager; //управляет игровой логикой
+        private ManualShipPlacer _shipPlacer; //отвечает за ручную расстановку кораблей
+        private string _statusText; //текст статуса игры
+        private string _startButtonText; //текст кнопки начала игры
+        private bool _isManualPlacement; //флаг режима расстановки кораблей
 
         public GameViewModel()
         {
@@ -72,14 +72,14 @@ namespace Sea_Battle.ViewModels
 
         private void InitializeCommands()
         {
-            StartGameCommand = new RelayCommand(StartGame);
-            ComputerCellClickCommand = new RelayCommand<Cell>(ComputerCellClick);
-            PlayerCellClickCommand = new RelayCommand<Cell>(PlayerCellClick);
-            SelectShipCommand = new RelayCommand<ShipTemplate>(SelectShip);
-            RotateShipCommand = new RelayCommand(RotateShip);
+            StartGameCommand = new RelayCommand(StartGame); //начало/сброс игры
+            ComputerCellClickCommand = new RelayCommand<Cell>(ComputerCellClick); //клик по ячейке компьютера
+            PlayerCellClickCommand = new RelayCommand<Cell>(PlayerCellClick);//клик по ячейке игрока
+            SelectShipCommand = new RelayCommand<ShipTemplate>(SelectShip); //выбор корабля для расстановки
+            RotateShipCommand = new RelayCommand(RotateShip); //поворот корабля
         }
 
-        private void StartGame()
+        private void StartGame() // начало игры
         {
             if (_gameManager.State != GameState.Setup)
             {
@@ -100,7 +100,7 @@ namespace Sea_Battle.ViewModels
             UpdateShipCounts();
             StartButtonText = "Начать новую игру";
         }
-
+        // сброс игры
         private void ResetGame()
         {
             _gameManager.ResetGame();
@@ -114,7 +114,7 @@ namespace Sea_Battle.ViewModels
             StartButtonText = "Начать игру";
             StatusText = "Расставьте корабли и начните игру";
         }
-
+        // обработка ходов 
         private void ComputerCellClick(Cell cell)
         {
             if (_gameManager.State == GameState.Playing &&
@@ -127,7 +127,7 @@ namespace Sea_Battle.ViewModels
                 UpdateBoards();
             }
         }
-
+        //Расстановка кораблей
         private void PlayerCellClick(Cell cell)
         {
             if (IsManualPlacement && _shipPlacer.SelectedShip != null)
@@ -144,11 +144,11 @@ namespace Sea_Battle.ViewModels
                 }
             }
         }
-
+        // выбор корабля для расстановки
         private void SelectShip(ShipTemplate ship) => _shipPlacer.SelectShip(ship);
-
+        //поворот корабля
         private void RotateShip() => _shipPlacer.RotateShip();
-
+        //Обновление досок
         private void UpdateBoards()
         {
             PlayerCells.Clear();

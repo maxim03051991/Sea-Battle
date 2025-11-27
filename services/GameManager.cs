@@ -6,22 +6,33 @@ using System.Windows;
 
 namespace Sea_Battle.services
 {
-    public class GameManager
-    {
-        public GameBoard PlayerBoard { get; private set; }
+    public class GameManager //управляет логикой игры
+    { // игровые поля игрока и компьютера
+        public GameBoard PlayerBoard { get; private set; } 
         public GameBoard ComputerBoard { get; private set; }
+        //указывает, чей сейчас ход
         public bool IsPlayerTurn { get; private set; }
+        //текущее состояние игры
         public GameState State { get; private set; }
+        //событие для обновления UI
         public event Action GameStateChanged;
 
-        public GameManager()
+        public GameManager() //конструктор
         {
-            PlayerBoard = new GameBoard(true);
-            ComputerBoard = new GameBoard(false);
+            PlayerBoard = new GameBoard(true);  // Доска игрока
+            ComputerBoard = new GameBoard(false); // Доска компьютера
             State = GameState.Setup;
             GameStateChanged?.Invoke();
         }
-
+        // начало игры
+        public void StartGame()
+        {
+            AutoPlaceShips(ComputerBoard);
+            IsPlayerTurn = true;
+            State = GameState.Playing;
+            GameStateChanged?.Invoke(); // Уведомление: игра началась!
+        }
+        //перезапустить игру
         public void ResetGame()
         {
             PlayerBoard = new GameBoard(true);
@@ -31,14 +42,7 @@ namespace Sea_Battle.services
             GameStateChanged?.Invoke();
         }
 
-        public void StartGame()
-        {
-            AutoPlaceShips(ComputerBoard);
-            IsPlayerTurn = true;
-            State = GameState.Playing;
-            GameStateChanged?.Invoke();
-        }
-
+        // авто расстановка кораблей для компьютера
         private void AutoPlaceShips(GameBoard board)
         {
             board.Ships.Clear();
@@ -63,7 +67,7 @@ namespace Sea_Battle.services
                 }
             }
         }
-
+        //очистка доски
         private void ClearBoard(GameBoard board)
         {
             for (int i = 0; i < 10; i++)
@@ -78,7 +82,7 @@ namespace Sea_Battle.services
                 }
             }
         }
-
+        // выстрел игрока
         public bool PlayerShoot(int row, int col)
         {
             if (!IsPlayerTurn || State != GameState.Playing)
@@ -99,7 +103,7 @@ namespace Sea_Battle.services
             GameStateChanged?.Invoke();
             return true;
         }
-
+        //выстрел компьютера
         private void ComputerShoot()
         {
             if (State != GameState.Playing || IsPlayerTurn)
@@ -134,7 +138,7 @@ namespace Sea_Battle.services
             GameStateChanged?.Invoke();
         }
     }
-
+    //состояния игры
     public enum GameState
     {
         Setup,

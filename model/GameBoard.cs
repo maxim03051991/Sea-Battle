@@ -4,23 +4,23 @@ namespace Sea_Battle.model
 {
     public class GameBoard
     {
-        public Cell[,] Cells { get; private set; }
-        public List<Ship> Ships { get; private set; } = new List<Ship>();
-        public int Size { get; private set; } = 10;
-        public bool IsPlayerBoard { get; set; }
+        public Cell[,] Cells { get; private set; } //Двумерный массив ячеек игрового поля 
+        public List<Ship> Ships { get; private set; } = new List<Ship>(); //Список всех кораблей на доске
+        public int SizeBoard { get; private set; } = 10; //Размер игрового поля
+        public bool IsPlayerBoard { get; set; } //Флаг указывающий принадлежность доски
 
-        public GameBoard(bool isPlayerBoard = true)
+        public GameBoard(bool isPlayerBoard = true) //Конструктор и инициализация
         {
             IsPlayerBoard = isPlayerBoard;
             InitializeBoard();
         }
-
-        private void InitializeBoard()
+        // Создает пустое игровое поле и для каждой ячейки устанавливает координаты и принадлежность доски
+        private void InitializeBoard() 
         {
-            Cells = new Cell[Size, Size];
-            for (int i = 0; i < Size; i++)
+            Cells = new Cell[SizeBoard, SizeBoard];
+            for (int i = 0; i < SizeBoard; i++)
             {
-                for (int j = 0; j < Size; j++)
+                for (int j = 0; j < SizeBoard; j++)
                 {
                     Cells[i, j] = new Cell
                     {
@@ -31,9 +31,9 @@ namespace Sea_Battle.model
                 }
             }
         }
-
+        // метод размещения корблей
         public bool PlaceShip(int startRow, int startCol, int size, bool isHorizontal)
-        {
+        { //проверка на возможность постановки корабря
             if (!CanPlaceShip(startRow, startCol, size, isHorizontal))
                 return false;
 
@@ -53,7 +53,7 @@ namespace Sea_Battle.model
             Ships.Add(ship);
             return true;
         }
-
+        // метод проверки возможности установления корабля
         private bool CanPlaceShip(int startRow, int startCol, int size, bool isHorizontal)
         {
             for (int i = 0; i < size; i++)
@@ -61,13 +61,13 @@ namespace Sea_Battle.model
                 int row = isHorizontal ? startRow : startRow + i;
                 int col = isHorizontal ? startCol + i : startCol;
 
-                if (row >= Size || col >= Size) return false;
+                if (row >= SizeBoard || col >= SizeBoard) return false;
 
                 for (int r = row - 1; r <= row + 1; r++)
                 {
                     for (int c = col - 1; c <= col + 1; c++)
                     {
-                        if (r >= 0 && r < Size && c >= 0 && c < Size && Cells[r, c].State == CellState.Ship)
+                        if (r >= 0 && r < SizeBoard && c >= 0 && c < SizeBoard && Cells[r, c].State == CellState.Ship)
                             return false;
                     }
                 }
@@ -92,7 +92,7 @@ namespace Sea_Battle.model
 
             return cell.State;
         }
-
+        //метод для проверки, все ли корабли потоплены
         public bool AllShipsSunk() => Ships.All(ship => ship.IsSunk);
     }
 }

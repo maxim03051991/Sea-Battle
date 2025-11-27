@@ -3,27 +3,27 @@ using System.Runtime.CompilerServices;
 
 namespace Sea_Battle.model
 {
-    public class Cell : INotifyPropertyChanged
+    public class Cell : INotifyPropertyChanged // класс клетки с интерфейсом уведомления об изменении свойств
     {
-        private CellState _state;
-        private bool _isPlayerBoard;
+        private CellState _state; // текущее состояние ячейки
+        private bool _isPlayerBoard; //является ли доска игрока или компьютера
 
-        public int Row { get; set; }
-        public int Column { get; set; }
-        public Ship Ship { get; set; }
+        public int Row { get; set; } // позиция ячейки
+        public int Column { get; set; } // позиция ячейки
+        public Ship Ship { get; set; } // является ли ячейка кораблем
 
-        public bool IsPlayerBoard
+        public bool IsPlayerBoard // ячейка игрока
         {
-            get => _isPlayerBoard;
+            get => _isPlayerBoard; //значение приватного поля
             set
             {
-                _isPlayerBoard = value;
-                OnPropertyChanged();
-                OnPropertyChanged(nameof(DisplayText));
+                _isPlayerBoard = value; // сохраняет новое значение для поля
+                OnPropertyChanged(); // // Уведомляет об IsPlayerBoard
+                OnPropertyChanged(nameof(DisplayText)); // Уведомляет об DisplayText
             }
         }
 
-        public CellState State
+        public CellState State // состояние ячейки
         {
             get => _state;
             set
@@ -34,18 +34,19 @@ namespace Sea_Battle.model
             }
         }
 
-        public string DisplayText => State switch
+        public string DisplayText => State switch // отображение на экране
         {
-            CellState.Ship => IsPlayerBoard ? "■" : "",
-            CellState.Hit => "X",
-            CellState.Miss => "•",
-            _ => ""
+            CellState.Ship => IsPlayerBoard ? "■" : "", //корабль игрока, если компьютер то не видно
+            CellState.Hit => "X", // попадание
+            CellState.Miss => "•", // промах
+            _ => "" //пустая клетка
         };
 
-        public event PropertyChangedEventHandler PropertyChanged;
-
+        public event PropertyChangedEventHandler PropertyChanged; // уведомление UI об изменении свойств
+        // Защищенный виртуальный метод для уведомления об изменении свойства
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
+            // Безопасный вызов события: проверяет наличие подписчиков и уведомляет их
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }

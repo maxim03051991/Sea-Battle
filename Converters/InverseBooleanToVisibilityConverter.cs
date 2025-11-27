@@ -8,7 +8,7 @@ using System.Windows;
 using System.Windows.Data;
 
 namespace Sea_Battle.Converters
-{
+{ //Конвертер для показа/скрытия элементов интерфейса
     public class InverseBooleanToVisibilityConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
