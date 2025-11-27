@@ -1,15 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
+﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Sea_Battle.model
 {
-    // Класс Cell (ячейка игрового поля) реализует интерфейс INotifyPropertyChanged
-    // Это позволяет уведомлять UI об изменениях свойств
     public class Cell : INotifyPropertyChanged
     {
         private CellState _state;
@@ -40,20 +33,14 @@ namespace Sea_Battle.model
                 OnPropertyChanged(nameof(DisplayText));
             }
         }
-        // Свойство для отображения символов в ячейках
-        public string DisplayText
+
+        public string DisplayText => State switch
         {
-            get
-            {
-                return State switch
-                {
-                    CellState.Ship => IsPlayerBoard ? "■" : "",    // Корабль (только на своем поле)
-                    CellState.Hit => "X",     // Попадание
-                    CellState.Miss => "•",    // Промах
-                    _ => ""                   // Пустота
-                };
-            }
-        }
+            CellState.Ship => IsPlayerBoard ? "■" : "",
+            CellState.Hit => "X",
+            CellState.Miss => "•",
+            _ => ""
+        };
 
         public event PropertyChangedEventHandler PropertyChanged;
 

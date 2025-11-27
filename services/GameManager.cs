@@ -1,9 +1,8 @@
 ﻿using Sea_Battle.model;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace Sea_Battle.services
 {
@@ -13,58 +12,37 @@ namespace Sea_Battle.services
         public GameBoard ComputerBoard { get; private set; }
         public bool IsPlayerTurn { get; private set; }
         public GameState State { get; private set; }
+        public event Action GameStateChanged;
 
         public GameManager()
         {
-            PlayerBoard = new GameBoard(true);  // Поле игрока
-            ComputerBoard = new GameBoard(false); // Поле компьютера
-            State = GameState.Setup;
-            GameStateChanged?.Invoke(); // Уведомить о начальном состоянии
-
-        }
-
-
-        public void ResetGame()
-        {
-            // Создаем новые доски
             PlayerBoard = new GameBoard(true);
             ComputerBoard = new GameBoard(false);
-
-            // Сбрасываем состояние игры
             State = GameState.Setup;
-            IsPlayerTurn = false;
-
             GameStateChanged?.Invoke();
         }
 
-
+        public void ResetGame()
+        {
+            PlayerBoard = new GameBoard(true);
+            ComputerBoard = new GameBoard(false);
+            State = GameState.Setup;
+            IsPlayerTurn = false;
+            GameStateChanged?.Invoke();
+        }
 
         public void StartGame()
         {
-            // Автоматическая расстановка кораблей компьютера
             AutoPlaceShips(ComputerBoard);
-
             IsPlayerTurn = true;
             State = GameState.Playing;
             GameStateChanged?.Invoke();
         }
 
-       
         private void AutoPlaceShips(GameBoard board)
         {
-            // Очищаем существующие корабли
             board.Ships.Clear();
-            for (int i = 0; i < 10; i++)
-            {
-                for (int j = 0; j < 10; j++)
-                {
-                    if (board.Cells[i, j].State == CellState.Ship)
-                    {
-                        board.Cells[i, j].State = CellState.Empty;
-                        board.Cells[i, j].Ship = null;
-                    }
-                }
-            }
+            ClearBoard(board);
 
             int[] shipSizes = { 4, 3, 3, 2, 2, 2, 1, 1, 1, 1 };
             Random rand = new Random();
@@ -86,6 +64,21 @@ namespace Sea_Battle.services
             }
         }
 
+        private void ClearBoard(GameBoard board)
+        {
+            for (int i = 0; i < 10; i++)
+            {
+                for (int j = 0; j < 10; j++)
+                {
+                    if (board.Cells[i, j].State == CellState.Ship)
+                    {
+                        board.Cells[i, j].State = CellState.Empty;
+                        board.Cells[i, j].Ship = null;
+                    }
+                }
+            }
+        }
+
         public bool PlayerShoot(int row, int col)
         {
             if (!IsPlayerTurn || State != GameState.Playing)
@@ -96,40 +89,18 @@ namespace Sea_Battle.services
             if (result == CellState.Hit && ComputerBoard.AllShipsSunk())
             {
                 State = GameState.PlayerWon;
-                GameStateChanged?.Invoke();
             }
-            else if (result == CellState.Miss) // Только при промахе передаем ход
+            else if (result == CellState.Miss)
             {
                 IsPlayerTurn = false;
-                GameStateChanged?.Invoke(); // Уведомляем об изменении хода
-
-                // Компьютер ходит с задержкой
-                Task.Delay(1000).ContinueWith(_ =>
-                {
-                    System.Windows.Application.Current.Dispatcher.Invoke(() =>
-                    {
-                        ComputerShoot();
-                    });
-                }, TaskScheduler.FromCurrentSynchronizationContext());
-            }
-            else if (result == CellState.Hit)
-            {
-                // Игрок попал, но игра продолжается - ход остается у игрока
-                GameStateChanged?.Invoke();
+                Task.Delay(1000).ContinueWith(_ => Application.Current.Dispatcher.Invoke(ComputerShoot));
             }
 
+            GameStateChanged?.Invoke();
             return true;
         }
 
-        public void ComputerShoot()
-        {
-            if (!IsPlayerTurn && State == GameState.Playing)
-            {
-                ComputerShootInternal();
-            }
-        }
-
-        private void ComputerShootInternal()
+        private void ComputerShoot()
         {
             if (State != GameState.Playing || IsPlayerTurn)
                 return;
@@ -138,7 +109,6 @@ namespace Sea_Battle.services
             int row, col;
             CellState result;
 
-            // Ищем случайную свободную клетку
             do
             {
                 row = rand.Next(0, 10);
@@ -154,27 +124,15 @@ namespace Sea_Battle.services
             }
             else if (result == CellState.Miss)
             {
-                IsPlayerTurn = true; // Передаем ход игроку
+                IsPlayerTurn = true;
             }
             else if (result == CellState.Hit)
             {
-                // Компьютер попал - ходит снова
-                // Небольшая пауза перед следующим выстрелом
-                Task.Delay(800).ContinueWith(_ =>
-                {
-                    System.Windows.Application.Current.Dispatcher.Invoke(() =>
-                    {
-                        ComputerShoot();
-                    });
-                }, TaskScheduler.FromCurrentSynchronizationContext());
+                Task.Delay(800).ContinueWith(_ => Application.Current.Dispatcher.Invoke(ComputerShoot));
             }
 
-            // Всегда уведомляем об изменениях
             GameStateChanged?.Invoke();
         }
-
-        //  уведомления об изменениях
-        public event Action? GameStateChanged;
     }
 
     public enum GameState
@@ -184,7 +142,4 @@ namespace Sea_Battle.services
         PlayerWon,
         ComputerWon
     }
-
 }
-    
-        

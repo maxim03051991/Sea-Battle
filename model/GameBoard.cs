@@ -1,19 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Linq;
 
 namespace Sea_Battle.model
 {
-    // Объявление публичного класса GameBoard, представляющего игровое поле
     public class GameBoard
     {
         public Cell[,] Cells { get; private set; }
         public List<Ship> Ships { get; private set; } = new List<Ship>();
         public int Size { get; private set; } = 10;
-
-        // Свойство для определения, чье это поле (игрока или компьютера)
         public bool IsPlayerBoard { get; set; }
 
         public GameBoard(bool isPlayerBoard = true)
@@ -33,13 +26,12 @@ namespace Sea_Battle.model
                     {
                         Row = i,
                         Column = j,
-                        IsPlayerBoard = this.IsPlayerBoard
+                        IsPlayerBoard = IsPlayerBoard
                     };
                 }
             }
         }
 
-        // Остальные методы остаются без изменений...
         public bool PlaceShip(int startRow, int startCol, int size, bool isHorizontal)
         {
             if (!CanPlaceShip(startRow, startCol, size, isHorizontal))
@@ -75,11 +67,8 @@ namespace Sea_Battle.model
                 {
                     for (int c = col - 1; c <= col + 1; c++)
                     {
-                        if (r >= 0 && r < Size && c >= 0 && c < Size)
-                        {
-                            if (Cells[r, c].State == CellState.Ship)
-                                return false;
-                        }
+                        if (r >= 0 && r < Size && c >= 0 && c < Size && Cells[r, c].State == CellState.Ship)
+                            return false;
                     }
                 }
             }
@@ -104,9 +93,6 @@ namespace Sea_Battle.model
             return cell.State;
         }
 
-        public bool AllShipsSunk()
-        {
-            return Ships.All(ship => ship.IsSunk);
-        }
+        public bool AllShipsSunk() => Ships.All(ship => ship.IsSunk);
     }
 }

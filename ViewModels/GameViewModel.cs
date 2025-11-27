@@ -1,15 +1,10 @@
-﻿using Sea_Battle.services;
-using System;
-using System.Collections.Generic;
+﻿using Sea_Battle.model;
+using Sea_Battle.services;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Input;
-using System.Windows;
-using Sea_Battle.model;
 
 namespace Sea_Battle.ViewModels
 {
@@ -17,8 +12,8 @@ namespace Sea_Battle.ViewModels
     {
         private GameManager _gameManager;
         private ManualShipPlacer _shipPlacer;
-        private string _statusText = "";
-        private string _startButtonText = "";
+        private string _statusText;
+        private string _startButtonText;
         private bool _isManualPlacement;
 
         public GameViewModel()
@@ -26,9 +21,11 @@ namespace Sea_Battle.ViewModels
             _gameManager = new GameManager();
             _shipPlacer = new ManualShipPlacer(_gameManager.PlayerBoard);
             _gameManager.GameStateChanged += OnGameStateChanged;
+
             StatusText = "Расставьте корабли и начните игру";
             StartButtonText = "Начать игру";
             IsManualPlacement = true;
+
             InitializeCommands();
             UpdateBoards();
         }
@@ -54,15 +51,8 @@ namespace Sea_Battle.ViewModels
         }
 
         public ManualShipPlacer ShipPlacer => _shipPlacer;
-
-        private void OnGameStateChanged()
-        {
-            UpdateStatus();
-            UpdateBoards();
-        }
-
-        public ObservableCollection<Cell> PlayerCells { get; set; } = new ObservableCollection<Cell>();
-        public ObservableCollection<Cell> ComputerCells { get; set; } = new ObservableCollection<Cell>();
+        public ObservableCollection<Cell> PlayerCells { get; } = new ObservableCollection<Cell>();
+        public ObservableCollection<Cell> ComputerCells { get; } = new ObservableCollection<Cell>();
 
         public string StatusText
         {
@@ -91,14 +81,12 @@ namespace Sea_Battle.ViewModels
 
         private void StartGame()
         {
-            /// Если игра уже идет - сбрасываем
             if (_gameManager.State != GameState.Setup)
             {
                 ResetGame();
                 return;
             }
 
-            // Проверяем, все ли корабли расставлены (только для ручной расстановки)
             if (IsManualPlacement && !AllShipsPlaced())
             {
                 StatusText = "Сначала расставьте все корабли!";
@@ -109,39 +97,30 @@ namespace Sea_Battle.ViewModels
             IsManualPlacement = false;
             UpdateStatus();
             UpdateBoards();
-            UpdateShipCounts(); // Обновляем счетчики
+            UpdateShipCounts();
             StartButtonText = "Начать новую игру";
         }
 
         private void ResetGame()
         {
-            // Сбрасываем менеджер игры
             _gameManager.ResetGame();
-
-            // Пересоздаем разместитель кораблей и очищаем доску
             _shipPlacer = new ManualShipPlacer(_gameManager.PlayerBoard);
-
-            // Уведомляем об изменении ShipPlacer для обновления привязок в UI
             OnPropertyChanged(nameof(ShipPlacer));
 
-            // Возвращаем в режим ручной расстановки
             IsManualPlacement = true;
-
-            // Обновляем интерфейс
             UpdateStatus();
             UpdateBoards();
-            UpdateShipCounts(); // Добавляем обновление счетчиков кораблей
+            UpdateShipCounts();
             StartButtonText = "Начать игру";
-
             StatusText = "Расставьте корабли и начните игру";
         }
 
         private void ComputerCellClick(Cell cell)
         {
             if (_gameManager.State == GameState.Playing &&
-         _gameManager.IsPlayerTurn &&
-         cell.State != CellState.Hit &&
-         cell.State != CellState.Miss)
+                _gameManager.IsPlayerTurn &&
+                cell.State != CellState.Hit &&
+                cell.State != CellState.Miss)
             {
                 _gameManager.PlayerShoot(cell.Row, cell.Column);
                 UpdateStatus();
@@ -156,13 +135,8 @@ namespace Sea_Battle.ViewModels
                 if (_shipPlacer.PlaceShip(cell.Row, cell.Column))
                 {
                     UpdateBoards();
-                    // Принудительно обновляем отображение кораблей
-                    CommandManager.InvalidateRequerySuggested();
-
                     if (AllShipsPlaced())
-                    {
                         StatusText = "Все корабли расставлены! Нажмите 'Начать игру'";
-                    }
                 }
                 else
                 {
@@ -171,17 +145,9 @@ namespace Sea_Battle.ViewModels
             }
         }
 
-        private void SelectShip(ShipTemplate ship)
-        {
-            _shipPlacer.SelectShip(ship);
-            StatusText = $"Выбран {ship.Name}. Кликните на поле для размещения.";
-        }
+        private void SelectShip(ShipTemplate ship) => _shipPlacer.SelectShip(ship);
 
-        private void RotateShip()
-        {
-            _shipPlacer.RotateShip();
-            StatusText = _shipPlacer.IsHorizontal ? "Горизонтальное размещение" : "Вертикальное размещение";
-        }
+        private void RotateShip() => _shipPlacer.RotateShip();
 
         private void UpdateBoards()
         {
@@ -198,16 +164,9 @@ namespace Sea_Battle.ViewModels
             }
         }
 
-        private void UpdateShipCounts()
-        {
-            // Уведомляем об изменении счетчиков кораблей
-            OnPropertyChanged(nameof(ShipPlacer));
-        }
+        private void UpdateShipCounts() => OnPropertyChanged(nameof(ShipPlacer));
 
-        private bool AllShipsPlaced()
-        {
-            return _shipPlacer.AvailableShips.All(ship => ship.Count == 0);
-        }
+        private bool AllShipsPlaced() => _shipPlacer.AvailableShips.All(ship => ship.Count == 0);
 
         private void UpdateStatus()
         {
@@ -221,8 +180,13 @@ namespace Sea_Battle.ViewModels
             };
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        private void OnGameStateChanged()
+        {
+            UpdateStatus();
+            UpdateBoards();
+        }
 
+        public event PropertyChangedEventHandler PropertyChanged;
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
