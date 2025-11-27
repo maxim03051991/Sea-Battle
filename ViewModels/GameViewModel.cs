@@ -9,8 +9,9 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using System.Windows;
+using Sea_Battle.model;
 
-namespace Sea_Battle.model
+namespace Sea_Battle.ViewModels
 {
     public class GameViewModel : INotifyPropertyChanged
     {

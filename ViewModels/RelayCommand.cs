@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
-namespace Sea_Battle.model
+namespace Sea_Battle.ViewModels
 {
     public class RelayCommand : ICommand
     {

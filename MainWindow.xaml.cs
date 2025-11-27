@@ -1,5 +1,7 @@
 ﻿using Sea_Battle.model;
 using Sea_Battle.services;
+using Sea_Battle.ViewModels;
+using Sea_Battle.Converters;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;

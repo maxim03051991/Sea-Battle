@@ -49,11 +49,7 @@ namespace Sea_Battle.services
             GameStateChanged?.Invoke();
         }
 
-        public void AutoPlacePlayerShips()
-        {
-            AutoPlaceShips(PlayerBoard);
-        }
-
+       
         private void AutoPlaceShips(GameBoard board)
         {
             // Очищаем существующие корабли

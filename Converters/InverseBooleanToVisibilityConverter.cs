@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
 
-namespace Sea_Battle.model
+namespace Sea_Battle.Converters
 {
     public class InverseBooleanToVisibilityConverter : IValueConverter
     {
