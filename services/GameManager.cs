@@ -8,7 +8,7 @@ namespace Sea_Battle.services
 {
     public class GameManager //управляет логикой игры
     { // игровые поля игрока и компьютера
-        public GameBoard PlayerBoard { get; private set; } 
+        public GameBoard PlayerBoard { get; private set; }
         public GameBoard ComputerBoard { get; private set; }
         //указывает, чей сейчас ход
         public bool IsPlayerTurn { get; private set; }
@@ -17,32 +17,65 @@ namespace Sea_Battle.services
         //событие для обновления UI
         public event Action GameStateChanged;
 
-        public GameManager() //конструктор
+        private Random _rand;
+        private bool _isNewRulesMode;
+        private int _sizeBoard; //Размер игрового поля
+        private List<Cell> _computerKnownCells; // Клетки, которые компьютер узнал от мин
+        private List<Cell> _playerKnownCells;   // Клетки, которые игрок узнал от мин
+
+        public GameManager(bool isNewRulesMode, int SizeBoard) //конструктор
         {
-            PlayerBoard = new GameBoard(true);  // Доска игрока
-            ComputerBoard = new GameBoard(false); // Доска компьютера
+            _isNewRulesMode = isNewRulesMode;
+            _sizeBoard = SizeBoard;
+            _rand = new Random();
+            _computerKnownCells = new List<Cell>();
+            _playerKnownCells = new List<Cell>();
+
+            PlayerBoard = new GameBoard(_sizeBoard, true);  // Доска игрока
+            ComputerBoard = new GameBoard(_sizeBoard, false); // Доска компьютера
             State = GameState.Setup;
             GameStateChanged?.Invoke();
         }
+
+        // ДОБАВЛЕНО: Свойство для получения размера доски
+        public int BoardSize => _sizeBoard;
+
         // начало игры
         public void StartGame()
         {
-            AutoPlaceShips(ComputerBoard);
+            // Автоматически расставляем корабли только для компьютера
+            if (_isNewRulesMode)
+            {
+                AutoPlaceCurvedShips(ComputerBoard);
+                AutoPlaceMines(ComputerBoard);
+                AutoPlaceMines(PlayerBoard);
+            }
+            else
+            {
+                AutoPlaceShips(ComputerBoard);
+                // В классическом режиме мины не расставляем
+            }
             IsPlayerTurn = true;
             State = GameState.Playing;
-            GameStateChanged?.Invoke(); // Уведомление: игра началась!
+            GameStateChanged?.Invoke();
         }
+
         //перезапустить игру
-        public void ResetGame()
+        public void ResetGame(bool isNewRulesMode, int SizeBoard)
         {
-            PlayerBoard = new GameBoard(true);
-            ComputerBoard = new GameBoard(false);
+            _isNewRulesMode = isNewRulesMode;
+            _sizeBoard = SizeBoard; // ИСПРАВЛЕНО: обновляем размер доски
+            _computerKnownCells.Clear();
+            _playerKnownCells.Clear();
+
+            PlayerBoard = new GameBoard(_sizeBoard, true);
+            ComputerBoard = new GameBoard(_sizeBoard, false);
             State = GameState.Setup;
             IsPlayerTurn = false;
             GameStateChanged?.Invoke();
         }
 
-        // авто расстановка кораблей для компьютера
+        // авто расстановка классических кораблей для компьютера
         private void AutoPlaceShips(GameBoard board)
         {
             board.Ships.Clear();
@@ -58,8 +91,8 @@ namespace Sea_Battle.services
 
                 while (!placed && attempts < 100)
                 {
-                    int row = rand.Next(0, 10);
-                    int col = rand.Next(0, 10);
+                    int row = rand.Next(0, _sizeBoard);
+                    int col = rand.Next(0, _sizeBoard);
                     bool horizontal = rand.Next(0, 2) == 0;
 
                     placed = board.PlaceShip(row, col, size, horizontal);
@@ -67,17 +100,102 @@ namespace Sea_Battle.services
                 }
             }
         }
+
+
+        // Авто-расстановка изогнутых кораблей для нового режима
+        public void AutoPlaceCurvedShips(GameBoard board)
+        {
+            board.ClearBoard();
+
+            var curvedShipTypes = new List<CurvedShipType>
+    {
+        CurvedShipType.Square,
+        CurvedShipType.LShape,
+        CurvedShipType.TShape,
+        CurvedShipType.ZShape
+    };
+
+            foreach (var shipType in curvedShipTypes)
+            {
+                bool placed = false;
+                int attempts = 0;
+
+                while (!placed && attempts < 100)
+                {
+                    int row = _rand.Next(0, _sizeBoard - 3);
+                    int col = _rand.Next(0, _sizeBoard - 3);
+
+                    List<Cell> shipCells = null;
+                    switch (shipType)
+                    {
+                        case CurvedShipType.Square:
+                            shipCells = board.GetSquareCells(row, col);
+                            break;
+                        case CurvedShipType.LShape:
+                            shipCells = board.GetLShapeCells(row, col);
+                            break;
+                        case CurvedShipType.TShape:
+                            shipCells = board.GetTShapeCells(row, col);
+                            break;
+                        case CurvedShipType.ZShape:
+                            shipCells = board.GetZShapeCells(row, col);
+                            break;
+                    }
+
+                    if (shipCells != null && board.CanPlaceCurvedShip(shipCells))
+                    {
+                        board.PlaceCurvedShip(shipCells);
+                        placed = true;
+                    }
+                    attempts++;
+                }
+            }
+        }
+
+
+
+        // Авто-расстановка мин для компьютера
+        private void AutoPlaceMines(GameBoard board)
+        {
+            int minesToPlace = 3;
+            int attempts = 0;
+
+            while (minesToPlace > 0 && attempts < 100)
+            {
+                int row = _rand.Next(0, _sizeBoard);
+                int col = _rand.Next(0, _sizeBoard);
+
+                if (board.CanPlaceMine(row, col))
+                {
+                    var mine = new Mine();
+                    board.PlaceMine(row, col, mine);
+                    minesToPlace--;
+                }
+                attempts++;
+            }
+        }
+
+
+
+
+
+
+
+
+
+
         //очистка доски
         private void ClearBoard(GameBoard board)
         {
-            for (int i = 0; i < 10; i++)
+            for (int i = 0; i < _sizeBoard; i++)
             {
-                for (int j = 0; j < 10; j++)
+                for (int j = 0; j < _sizeBoard; j++)
                 {
-                    if (board.Cells[i, j].State == CellState.Ship)
+                    if (board.Cells[i, j].State == CellState.Ship || board.Cells[i, j].State == CellState.Mine)
                     {
                         board.Cells[i, j].State = CellState.Empty;
                         board.Cells[i, j].Ship = null;
+                        board.Cells[i, j].Mine = null;
                     }
                 }
             }
@@ -90,11 +208,22 @@ namespace Sea_Battle.services
 
             var result = ComputerBoard.Shoot(row, col);
 
-            if (result == CellState.Hit && ComputerBoard.AllShipsSunk())
+            if (result.CellState == CellState.Hit)
             {
-                State = GameState.PlayerWon;
+                if (ComputerBoard.AllShipsSunk())
+                {
+                    State = GameState.PlayerWon;
+                }
+                // При попадании в корабль ход остается у игрока
             }
-            else if (result == CellState.Miss)
+            else if (result.CellState == CellState.MineHit)
+            {
+                // Попадание в мину - игрок сообщает компьютеру одну клетку своего корабля
+                RevealCellToComputer();
+                IsPlayerTurn = false; // Ход переходит к компьютеру
+                Task.Delay(1000).ContinueWith(_ => Application.Current.Dispatcher.Invoke(ComputerShoot));
+            }
+            else if (result.CellState == CellState.Miss)
             {
                 IsPlayerTurn = false;
                 Task.Delay(1000).ContinueWith(_ => Application.Current.Dispatcher.Invoke(ComputerShoot));
@@ -103,40 +232,102 @@ namespace Sea_Battle.services
             GameStateChanged?.Invoke();
             return true;
         }
-        //выстрел компьютера
+        // Игрок сообщает компьютеру одну клетку своего корабля
+        private void RevealCellToComputer()
+        {
+            // Находим все неподбитые клетки кораблей игрока
+            var availableCells = PlayerBoard.Ships
+                .SelectMany(ship => ship.Cells)
+                .Where(cell => cell.State == CellState.Ship)
+                .ToList();
+
+            if (availableCells.Any())
+            {
+                var randomCell = availableCells[_rand.Next(availableCells.Count)];
+                _computerKnownCells.Add(randomCell);
+            }
+        }
+
+
+
+
+        // Выстрел компьютера
         private void ComputerShoot()
         {
             if (State != GameState.Playing || IsPlayerTurn)
                 return;
 
-            Random rand = new Random();
             int row, col;
-            CellState result;
+            ShootResult result;
 
-            do
+            // Сначала стреляем по известным клеткам от мин
+            if (_computerKnownCells.Any())
             {
-                row = rand.Next(0, 10);
-                col = rand.Next(0, 10);
-            } while (PlayerBoard.Cells[row, col].State == CellState.Miss ||
-                     PlayerBoard.Cells[row, col].State == CellState.Hit);
+                var knownCell = _computerKnownCells.First();
+                _computerKnownCells.Remove(knownCell);
+                row = knownCell.Row;
+                col = knownCell.Column;
+            }
+            else
+            {
+                // Случайный выстрел
+                do
+                {
+                    row = _rand.Next(0, _sizeBoard);
+                    col = _rand.Next(0, _sizeBoard);
+                } while (PlayerBoard.Cells[row, col].State == CellState.Miss ||
+                         PlayerBoard.Cells[row, col].State == CellState.Hit ||
+                         PlayerBoard.Cells[row, col].State == CellState.MineHit);
+            }
 
             result = PlayerBoard.Shoot(row, col);
 
-            if (result == CellState.Hit && PlayerBoard.AllShipsSunk())
+            if (result.CellState == CellState.Hit)
             {
-                State = GameState.ComputerWon;
+                if (PlayerBoard.AllShipsSunk())
+                {
+                    State = GameState.ComputerWon;
+                }
+                else
+                {
+                    // Компьютер продолжает ход при попадании в корабль
+                    Task.Delay(800).ContinueWith(_ => Application.Current.Dispatcher.Invoke(ComputerShoot));
+                }
             }
-            else if (result == CellState.Miss)
+            else if (result.CellState == CellState.MineHit)
+            {
+                // Попадание в мину игрока - компьютер сообщает игроку одну клетку своего корабля
+                RevealCellToPlayer();
+                IsPlayerTurn = true; // Ход переходит к игроку
+            }
+            else if (result.CellState == CellState.Miss)
             {
                 IsPlayerTurn = true;
-            }
-            else if (result == CellState.Hit)
-            {
-                Task.Delay(800).ContinueWith(_ => Application.Current.Dispatcher.Invoke(ComputerShoot));
             }
 
             GameStateChanged?.Invoke();
         }
+        // Компьютер сообщает игроку одну клетку своего корабля
+        private void RevealCellToPlayer()
+        {
+            // Находим все неподбитые клетки кораблей компьютера
+            var availableCells = ComputerBoard.Ships
+                .SelectMany(ship => ship.Cells)
+                .Where(cell => cell.State == CellState.Ship)
+                .ToList();
+
+            if (availableCells.Any())
+            {
+                var randomCell = availableCells[_rand.Next(availableCells.Count)];
+                _playerKnownCells.Add(randomCell);
+
+                // Можно добавить визуальное выделение этой клетки на поле компьютера
+                // Например, установить специальное состояние клетки
+                randomCell.State = CellState.Forbidden; // Временно помечаем как запрещенную для визуализации
+            }
+        }
+
+       
     }
     //состояния игры
     public enum GameState

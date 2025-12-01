@@ -12,6 +12,9 @@ namespace Sea_Battle.model
         public int Column { get; set; } // позиция ячейки
         public Ship Ship { get; set; } // является ли ячейка кораблем
 
+        public Mine Mine { get; set; }// является ли ячейка миной
+
+
         public bool IsPlayerBoard // ячейка игрока
         {
             get => _isPlayerBoard; //значение приватного поля
@@ -39,6 +42,8 @@ namespace Sea_Battle.model
             CellState.Ship => IsPlayerBoard ? "■" : "", //корабль игрока, если компьютер то не видно
             CellState.Hit => "X", // попадание
             CellState.Miss => "•", // промах
+            CellState.Mine => IsPlayerBoard ? "○" : "", // Мина видна только на своем поле 
+            CellState.MineHit => "⦿", //попадание по мине видно всем
             _ => "" //пустая клетка
         };
 

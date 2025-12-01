@@ -36,4 +36,11 @@ namespace Sea_Battle.model
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
+    public enum CurvedShipType
+    {
+        Square,     // Квадрат 2x2
+        LShape,     // Г-образная
+        TShape,     // Т-образная
+        ZShape      // Z-образная
+    }
 }

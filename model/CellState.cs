@@ -6,6 +6,8 @@
         Ship,
         Hit,
         Miss,
+        Mine,
+        MineHit,
         Forbidden
     }
 }
