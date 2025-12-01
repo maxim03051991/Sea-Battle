@@ -36,6 +36,13 @@ namespace Sea_Battle.model
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
+    public class ShipSelection
+    {
+        public ShipTemplate ShipTemplate { get; set; }
+        public List<Cell> SelectedCells { get; set; } = new List<Cell>();
+        public bool IsRevealed { get; set; }
+    }
+
     public enum CurvedShipType
     {
         Square,     // Квадрат 2x2

@@ -8,6 +8,7 @@ namespace Sea_Battle.model
         private bool _isActive = true;
         private Cell _cell;
         private bool _isUsed;
+        private Cell _revealedCell; // Клетка, которую показал противник
 
         public Cell Cell
         {
@@ -35,6 +36,16 @@ namespace Sea_Battle.model
             set
             {
                 _isUsed = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Cell RevealedCell
+        {
+            get => _revealedCell;
+            set
+            {
+                _revealedCell = value;
                 OnPropertyChanged();
             }
         }

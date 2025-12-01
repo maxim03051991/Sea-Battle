@@ -175,12 +175,22 @@ namespace Sea_Battle.model
                 cell.State = CellState.MineHit;
                 result.CellState = CellState.MineHit;
                 result.Mine = cell.Mine;
-                cell.Mine.IsUsed = true;
+                result.Mine.IsUsed = true;
+
+                // Пометка, что нужно выбрать клетку для показа
+                result.NeedsCellSelection = true;
             }
             else if (cell.State == CellState.Empty)
             {
                 cell.State = CellState.Miss;
                 result.CellState = CellState.Miss;
+            }
+            else if (cell.State == CellState.RevealedShip)
+            {
+                cell.State = CellState.Hit;
+                result.CellState = CellState.Hit;
+                result.Ship = cell.Ship;
+                result.IsRevealedHit = true;
             }
             else
             {
@@ -190,7 +200,7 @@ namespace Sea_Battle.model
             return result;
         }
 
-                //метод для проверки, все ли корабли потоплены
+        //метод для проверки, все ли корабли потоплены
         public bool AllShipsSunk() => Ships.All(ship => ship.IsSunk);
 
 
@@ -317,5 +327,7 @@ namespace Sea_Battle.model
         public Ship Ship { get; set; }
         public Mine Mine { get; set; }
         public bool IsShipSunk { get; set; }
+        public bool NeedsCellSelection { get; set; } // Нужно ли выбрать клетку для показа
+        public bool IsRevealedHit { get; set; } // Попадание по подсвеченной клетке
     }
 }

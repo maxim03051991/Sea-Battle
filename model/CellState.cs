@@ -8,6 +8,8 @@
         Miss,
         Mine,
         MineHit,
-        Forbidden
+        Forbidden,
+        RevealedShip, // НОВОЕ: подсвеченная клетка корабля (от мины)
+        MineUsed // НОВОЕ: использованная мина с точкой
     }
 }

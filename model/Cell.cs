@@ -39,12 +39,15 @@ namespace Sea_Battle.model
 
         public string DisplayText => State switch // отображение на экране
         {
-            CellState.Ship => IsPlayerBoard ? "■" : "", //корабль игрока, если компьютер то не видно
-            CellState.Hit => "X", // попадание
-            CellState.Miss => "•", // промах
-            CellState.Mine => IsPlayerBoard ? "○" : "", // Мина видна только на своем поле 
-            CellState.MineHit => "⦿", //попадание по мине видно всем
-            _ => "" //пустая клетка
+            CellState.Ship => IsPlayerBoard ? "■" : "", // Корабли противника НЕ видны
+            CellState.Hit => "X",
+            CellState.Miss => "•",
+            CellState.Mine => IsPlayerBoard ? "○" : "", // Мины противника НЕ видны
+            CellState.MineHit => "⦿",
+            CellState.MineUsed => "◎",
+            // RevealedShip отображается только на СВОЕМ поле после показа
+            CellState.RevealedShip => IsPlayerBoard ? "■" : "□", // Исправлено: только на своем поле
+            _ => ""
         };
 
         public event PropertyChangedEventHandler PropertyChanged; // уведомление UI об изменении свойств

@@ -10,13 +10,16 @@ namespace Sea_Battle.ViewModels
 {
     public class GameViewModel : INotifyPropertyChanged
     {
-        private GameManager _gameManager; //управляет игровой логикой
-        private ManualShipPlacer _shipPlacer; //отвечает за ручную расстановку кораблей
-        private string _statusText; //текст статуса игры
-        private string _startButtonText; //текст кнопки начала игры
-        private bool _isManualPlacement; //флаг режима расстановки кораблей
+        private GameManager _gameManager;
+        private ManualShipPlacer _shipPlacer;
+        private string _statusText;
+        private string _startButtonText;
+        private bool _isManualPlacement;
         private bool _isNewRulesMode;
         private int _sizeBoard;
+        public bool IsPlayerBoardInteractive => IsManualPlacement ||
+                                       (_gameManager.State == GameState.Playing &&
+                                        _gameManager.IsSelectingCellForMine);
 
         public GameViewModel(bool isNewRulesMode)
         {
@@ -24,18 +27,24 @@ namespace Sea_Battle.ViewModels
             _sizeBoard = _isNewRulesMode ? 15 : 10;
             _gameManager = new GameManager(_isNewRulesMode, _sizeBoard);
 
-            // Убрана автоматическая расстановка кораблей для игрока в новом режиме
-            // Игрок теперь будет расставлять корабли вручную в обоих режимах
-
             _shipPlacer = new ManualShipPlacer(_isNewRulesMode, _gameManager.PlayerBoard);
+
+            // Подписываемся на события
             _gameManager.GameStateChanged += OnGameStateChanged;
+            _gameManager.GameMessageChanged += OnGameMessageChanged;
 
             StatusText = "Расставьте корабли и начните игру";
             StartButtonText = "Начать игру";
-            IsManualPlacement = true; // Всегда включаем ручную расстановку
+            IsManualPlacement = true;
 
             InitializeCommands();
             UpdateBoards();
+        }
+
+        private void OnGameMessageChanged(string message)
+        {
+            // Устанавливаем сообщение от GameManager
+            StatusText = message;
         }
 
         public string StartButtonText
@@ -74,12 +83,12 @@ namespace Sea_Battle.ViewModels
             set
             {
                 if (!_isNewRulesMode)
-                    _sizeBoard = 10; // В классическом режиме всегда 10
+                    _sizeBoard = 10;
                 else
-                    _sizeBoard = value; // В новом режиме - выбранный размер
+                    _sizeBoard = value;
 
                 OnPropertyChanged();
-                OnPropertyChanged(nameof(AvailableBoardSizes)); // Уведомляем об изменении доступных размеров
+                OnPropertyChanged(nameof(AvailableBoardSizes));
             }
         }
 
@@ -108,18 +117,18 @@ namespace Sea_Battle.ViewModels
 
         private void InitializeCommands()
         {
-            StartGameCommand = new RelayCommand(StartGame); //начало/сброс игры
-            ComputerCellClickCommand = new RelayCommand<Cell>(ComputerCellClick); //клик по ячейке компьютера
-            PlayerCellClickCommand = new RelayCommand<Cell>(PlayerCellClick);//клик по ячейке игрока
-            SelectShipCommand = new RelayCommand<ShipTemplate>(SelectShip); //выбор корабля для расстановки
-            RotateShipCommand = new RelayCommand(RotateShip); //поворот корабля
-            ChangeBoardSizeCommand = new RelayCommand<object>(ChangeBoardSize); // выбор размера доски
+            StartGameCommand = new RelayCommand(StartGame);
+            ComputerCellClickCommand = new RelayCommand<Cell>(ComputerCellClick);
+            PlayerCellClickCommand = new RelayCommand<Cell>(PlayerCellClick);
+            SelectShipCommand = new RelayCommand<ShipTemplate>(SelectShip);
+            RotateShipCommand = new RelayCommand(RotateShip);
+            ChangeBoardSizeCommand = new RelayCommand<object>(ChangeBoardSize);
         }
+
         private void ChangeBoardSize(object size)
         {
             int newSize;
 
-            // Пытаемся преобразовать параметр в int разными способами
             if (size is int)
                 newSize = (int)size;
             else if (size is string str)
@@ -136,8 +145,7 @@ namespace Sea_Battle.ViewModels
             ResetGame();
         }
 
-
-        private void StartGame() // начало игры
+        private void StartGame()
         {
             if (_gameManager.State != GameState.Setup)
             {
@@ -159,7 +167,6 @@ namespace Sea_Battle.ViewModels
             StartButtonText = "Начать новую игру";
         }
 
-        // сброс игры
         private void ResetGame()
         {
             _gameManager.ResetGame(_isNewRulesMode, _sizeBoard);
@@ -174,7 +181,6 @@ namespace Sea_Battle.ViewModels
             StatusText = "Расставьте корабли и начните игру";
         }
 
-        // обработка ходов 
         private void ComputerCellClick(Cell cell)
         {
             if (_gameManager.State == GameState.Playing &&
@@ -188,9 +194,9 @@ namespace Sea_Battle.ViewModels
             }
         }
 
-        //Расстановка кораблей
         private void PlayerCellClick(Cell cell)
         {
+            // Режим ручной расстановки
             if (IsManualPlacement && _shipPlacer.SelectedShip != null)
             {
                 if (_shipPlacer.PlaceShip(cell.Row, cell.Column))
@@ -204,21 +210,22 @@ namespace Sea_Battle.ViewModels
                     StatusText = "Нельзя разместить корабль здесь!";
                 }
             }
+            // Режим выбора клетки после попадания в мину
+            else if (_gameManager.State == GameState.Playing &&
+                     _gameManager.IsSelectingCellForMine &&
+                     cell.IsPlayerBoard &&
+                     cell.State == CellState.Ship) // Проверяем, что это неповрежденная клетка корабля
+            {
+                _gameManager.PlayerSelectCellForMine(cell.Row, cell.Column);
+                UpdateBoards();
+                UpdateStatus();
+            }
         }
 
-        // выбор корабля для расстановки
         private void SelectShip(ShipTemplate ship) => _shipPlacer.SelectShip(ship);
 
-        //поворот корабля
         private void RotateShip() => _shipPlacer.RotateShip();
 
-        private void ChangeBoardSize(int size)
-        {
-            SizeBoard = size; // ИСПРАВЛЕНО: используем свойство вместо поля
-            ResetGame();
-        }
-
-        //Обновление досок
         private void UpdateBoards()
         {
             PlayerCells.Clear();
@@ -240,6 +247,13 @@ namespace Sea_Battle.ViewModels
 
         private void UpdateStatus()
         {
+            // Если игрок выбирает клетку для мины, показываем специальное сообщение
+            if (_gameManager.IsSelectingCellForMine)
+            {
+                StatusText = "Вы попали на мину! Выберите одну клетку своего корабля для показа компьютеру.";
+                return;
+            }
+
             StatusText = _gameManager.State switch
             {
                 GameState.Setup => "Расставьте корабли и начните игру",
@@ -254,6 +268,8 @@ namespace Sea_Battle.ViewModels
         {
             UpdateStatus();
             UpdateBoards();
+            // Уведомляем об изменении свойства IsPlayerBoardInteractive
+            OnPropertyChanged(nameof(IsPlayerBoardInteractive));
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
