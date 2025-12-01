@@ -48,8 +48,8 @@ namespace Sea_Battle.services
                 {
                     new ShipTemplate(4, 1, "Квадрат 2x2"), // Размер 4 клетки
                     new ShipTemplate(4, 1, "Г-образная"),   // Размер 4 клетки
-                    new ShipTemplate(5, 1, "Т-образная"),   // Размер 5 клеток
-                    new ShipTemplate(5, 1, "Z-образная")    // Размер 5 клеток
+                    new ShipTemplate(4, 1, "Т-образная"),   // Размер 5 клеток
+                    new ShipTemplate(4, 1, "Z-образная")    // Размер 5 клеток
                 };
             }
         }

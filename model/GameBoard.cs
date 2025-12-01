@@ -247,9 +247,9 @@ namespace Sea_Battle.model
         {
             var cells = new List<Cell>();
 
-            // L-образная форма (3 клетки вниз, 2 вправо)
+            // Г-образная форма (3 клетки вниз, 1 вправо)
             int[,] pattern = {
-            {0, 0}, {1, 0}, {2, 0}, {2, 1}
+            {0, 0}, {1, 0}, {2, 0}, {0, 1}
         };
 
             for (int i = 0; i < pattern.GetLength(0); i++)
@@ -270,7 +270,7 @@ namespace Sea_Battle.model
 
             // T-образная форма
             int[,] pattern = {
-            {0, 1}, {1, 0}, {1, 1}, {1, 2}, {2, 1}
+            {2, 1}, {1, 0}, {1, 1}, {1, 2},
         };
 
             for (int i = 0; i < pattern.GetLength(0); i++)
@@ -291,7 +291,7 @@ namespace Sea_Battle.model
 
             // Z-образная форма
             int[,] pattern = {
-            {0, 0}, {0, 1}, {1, 1}, {1, 2}, {2, 2}
+            {0, 0}, {0, 1}, {1, 1}, {1, 2},
         };
 
             for (int i = 0; i < pattern.GetLength(0); i++)
