@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-
-namespace Sea_Battle.model
+﻿namespace Sea_Battle.model
 {
     public class Ship //класс Ship, представляющий корабль
     {

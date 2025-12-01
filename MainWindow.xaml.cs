@@ -1,20 +1,5 @@
-﻿using Sea_Battle.model;
-using Sea_Battle.services;
-using Sea_Battle.ViewModels;
-using Sea_Battle.Converters;
-using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using System.Text;
+﻿using Sea_Battle.ViewModels;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace Sea_Battle
 {

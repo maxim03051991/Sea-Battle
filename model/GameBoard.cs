@@ -1,11 +1,8 @@
-﻿using System.Linq;
-using System.Windows.Shapes;
-
-namespace Sea_Battle.model
+﻿namespace Sea_Battle.model
 {
     public class GameBoard
     {
-    
+
         public Cell[,] Cells { get; private set; } //Двумерный массив ячеек игрового поля 
         public List<Ship> Ships { get; private set; } = new List<Ship>(); //Список всех кораблей на доске
         public List<Mine> Mines { get; private set; } = new List<Mine>();// Мины
@@ -13,7 +10,7 @@ namespace Sea_Battle.model
 
         private int _sizeBoard; //Размер игрового поля
 
-       
+
         public GameBoard(int SizeBoard, bool isPlayerBoard = true) //Конструктор и инициализация
         {
             _sizeBoard = SizeBoard;
@@ -21,7 +18,7 @@ namespace Sea_Battle.model
             InitializeBoard();
         }
         // Создает пустое игровое поле и для каждой ячейки устанавливает координаты и принадлежность доски
-        private void InitializeBoard() 
+        private void InitializeBoard()
         {
             Cells = new Cell[_sizeBoard, _sizeBoard];
             for (int i = 0; i < _sizeBoard; i++)

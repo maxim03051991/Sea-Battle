@@ -1,6 +1,4 @@
 ﻿using Sea_Battle.model;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Sea_Battle.services
 {
