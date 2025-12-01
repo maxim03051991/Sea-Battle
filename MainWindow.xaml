@@ -24,36 +24,51 @@
             <Setter Property="Height" Value="25"/>
             <Setter Property="Background" Value="LightBlue"/>
             <Style.Triggers>
-                <!-- Корабль -->
-                <DataTrigger Binding="{Binding State}" Value="Ship">
+                <!-- Корабль (только на своей доске) -->
+                <MultiDataTrigger>
+                    <MultiDataTrigger.Conditions>
+                        <Condition Binding="{Binding State}" Value="Ship"/>
+                        <Condition Binding="{Binding IsPlayerBoard}" Value="True"/>
+                    </MultiDataTrigger.Conditions>
                     <Setter Property="Background" Value="Gray"/>
-                </DataTrigger>
+                </MultiDataTrigger>
+
+                <!-- Мина (только на своей доске) -->
+                <MultiDataTrigger>
+                    <MultiDataTrigger.Conditions>
+                        <Condition Binding="{Binding State}" Value="Mine"/>
+                        <Condition Binding="{Binding IsPlayerBoard}" Value="True"/>
+                    </MultiDataTrigger.Conditions>
+                    <Setter Property="Background" Value="Yellow"/>
+                </MultiDataTrigger>
+
                 <!-- Попадание -->
                 <DataTrigger Binding="{Binding State}" Value="Hit">
                     <Setter Property="Background" Value="Red"/>
                 </DataTrigger>
+
                 <!-- Промах -->
                 <DataTrigger Binding="{Binding State}" Value="Miss">
                     <Setter Property="Background" Value="White"/>
                 </DataTrigger>
-                <!-- Мина -->
-                <DataTrigger Binding="{Binding State}" Value="Mine">
-                    <Setter Property="Background" Value="Yellow"/>
-                </DataTrigger>
+
                 <!-- Попадание в мину -->
                 <DataTrigger Binding="{Binding State}" Value="MineHit">
                     <Setter Property="Background" Value="Orange"/>
                 </DataTrigger>
+
                 <!-- Использованная мина -->
                 <DataTrigger Binding="{Binding State}" Value="MineUsed">
                     <Setter Property="Background" Value="LightGray"/>
                 </DataTrigger>
+
                 <!-- Подсвеченный корабль (от мины) -->
                 <DataTrigger Binding="{Binding State}" Value="RevealedShip">
                     <Setter Property="Background" Value="Gold"/>
                     <Setter Property="BorderBrush" Value="DarkOrange"/>
                     <Setter Property="BorderThickness" Value="2"/>
                 </DataTrigger>
+
                 <!-- Запрещенная клетка -->
                 <DataTrigger Binding="{Binding State}" Value="Forbidden">
                     <Setter Property="Background" Value="LightGray"/>
