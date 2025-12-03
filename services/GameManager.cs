@@ -18,7 +18,7 @@ namespace Sea_Battle.services
         //событие для обновления UI
         public event Action GameStateChanged;
 
-        // НОВОЕ: Событие для сообщений игроку
+        //  Событие для сообщений игроку
         public event Action<string> GameMessageChanged;
 
         // Флаг выбора клетки после попадания в мину
@@ -53,9 +53,7 @@ namespace Sea_Battle.services
             GameStateChanged?.Invoke();
         }
 
-        // ДОБАВЛЕНО: Свойство для получения размера доски
-        public int BoardSize => _sizeBoard;
-
+        
         // начало игры
         public void StartGame()
         {
@@ -252,7 +250,7 @@ namespace Sea_Battle.services
             return true;
         }
 
-        // НОВЫЙ МЕТОД: игрок выбирает клетку для показа после попадания в мину
+        // игрок выбирает клетку для показа после попадания в мину
         public bool PlayerSelectCellForMine(int row, int col)
         {
             if (!IsSelectingCellForMine)

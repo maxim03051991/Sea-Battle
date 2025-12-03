@@ -1,15 +1,13 @@
 ﻿namespace Sea_Battle.model
 {
-    public class GameBoard
+    public class GameBoard // класс игровой доски
     {
 
         public Cell[,] Cells { get; private set; } //Двумерный массив ячеек игрового поля 
         public List<Ship> Ships { get; private set; } = new List<Ship>(); //Список всех кораблей на доске
         public List<Mine> Mines { get; private set; } = new List<Mine>();// Мины
         public bool IsPlayerBoard { get; set; } //Флаг указывающий принадлежность доски
-
         private int _sizeBoard; //Размер игрового поля
-
 
         public GameBoard(int SizeBoard, bool isPlayerBoard = true) //Конструктор и инициализация
         {
@@ -77,7 +75,7 @@
             }
             return true;
         }
-        //зазмещение изогнутого корабя
+        //размещение изогнутого корабя
         public bool PlaceCurvedShip(List<Cell> shipCells)
         {
             if (!CanPlaceCurvedShip(shipCells))
@@ -200,7 +198,6 @@
         //метод для проверки, все ли корабли потоплены
         public bool AllShipsSunk() => Ships.All(ship => ship.IsSunk);
 
-
         //очистка доски
         public void ClearBoard()
         {
@@ -312,13 +309,8 @@
             }
             return cells;
         }
-
-
-
-
-
     }
-    public class ShootResult
+    public class ShootResult //результат выстрела
     {
         public CellState CellState { get; set; }
         public Ship Ship { get; set; }

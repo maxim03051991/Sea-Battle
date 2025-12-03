@@ -2,8 +2,8 @@
 using System.Runtime.CompilerServices;
 
 namespace Sea_Battle.model
-{
-    public class ShipTemplate : INotifyPropertyChanged //коичство кораблей для выбора 
+{ // таблица выбора кораблей
+    public class ShipTemplate : INotifyPropertyChanged //коkичство кораблей для выбора 
     {
         private int _count; // Приватное поле для хранения количества кораблей
 
@@ -36,13 +36,8 @@ namespace Sea_Battle.model
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
-    public class ShipSelection
-    {
-        public ShipTemplate ShipTemplate { get; set; }
-        public List<Cell> SelectedCells { get; set; } = new List<Cell>();
-        public bool IsRevealed { get; set; }
-    }
-
+   
+    //перечисление изогнутых кораблей
     public enum CurvedShipType
     {
         Square,     // Квадрат 2x2

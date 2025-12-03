@@ -11,7 +11,6 @@ namespace Sea_Battle.services
         private ShipTemplate _selectedShip;//выбранный в данный момент корабль
         private bool _isHorizontal = true; //ориентация корабля
 
-
         //контруктор принимает игровое поле и инициализирует список доступных кораблей
         public ManualShipPlacer(bool isNewRulesMode, GameBoard board)
         {
@@ -30,7 +29,7 @@ namespace Sea_Battle.services
         //Создает начальный набор кораблей согласно правилам "Морского боя"
         private void InitializeAvailableShips()
         {
-            if (!_isNewRulesMode) // ИСПРАВЛЕНО: было = вместо ==
+            if (!_isNewRulesMode) 
             {
                 _availableShips = new List<ShipTemplate>
                 {
@@ -44,10 +43,10 @@ namespace Sea_Battle.services
             {
                 _availableShips = new List<ShipTemplate>
                 {
-                    new ShipTemplate(4, 1, "Квадрат 2x2"), // Размер 4 клетки
-                    new ShipTemplate(4, 1, "Г-образная"),   // Размер 4 клетки
-                    new ShipTemplate(4, 1, "Т-образная"),   // Размер 5 клеток
-                    new ShipTemplate(4, 1, "Z-образная")    // Размер 5 клеток
+                    new ShipTemplate(4, 1, "Квадрат 2x2"), 
+                    new ShipTemplate(4, 1, "Г-образная"),   
+                    new ShipTemplate(4, 1, "Т-образная"),  
+                    new ShipTemplate(4, 1, "Z-образная")    
                 };
             }
         }
@@ -122,7 +121,6 @@ namespace Sea_Battle.services
 
             return false;
         }
-
 
         //ориентацию корабля между горизонтальной и вертикальной
         public void RotateShip() => _isHorizontal = !_isHorizontal;

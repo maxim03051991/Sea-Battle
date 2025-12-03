@@ -3,9 +3,6 @@ using System.Windows;
 
 namespace Sea_Battle
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : Window
     {
         private bool _isNewRulesMode;
@@ -32,17 +29,17 @@ namespace Sea_Battle
                 ShowStartupScreen();
             }
         }
-
+        //выбор классической игры
         private void ClassicGame_Click(object sender, RoutedEventArgs e)
         {
             StartGame(false);
         }
-
+        //выбор игры по новым правилам
         private void NewRulesGame_Click(object sender, RoutedEventArgs e)
         {
             StartGame(true);
         }
-
+        //начало игры и постоение экрана
         private void StartGame(bool isNewRulesMode)
         {
             _isNewRulesMode = isNewRulesMode;
@@ -52,7 +49,7 @@ namespace Sea_Battle
             StartupScreen.Visibility = Visibility.Collapsed;
             GameScreen.Visibility = Visibility.Visible;
         }
-
+        //экран выбора режима игры
         private void ShowStartupScreen()
         {
             StartupScreen.Visibility = Visibility.Visible;

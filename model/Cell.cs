@@ -46,7 +46,7 @@ namespace Sea_Battle.model
             CellState.MineHit => "⦿",
             CellState.MineUsed => "◎",
             // RevealedShip отображается только на СВОЕМ поле после показа
-            CellState.RevealedShip => IsPlayerBoard ? "■" : "□", // Исправлено: только на своем поле
+            CellState.RevealedShip => IsPlayerBoard ? "■" : "□",
             _ => ""
         };
 

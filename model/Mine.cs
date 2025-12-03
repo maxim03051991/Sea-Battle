@@ -5,12 +5,12 @@ namespace Sea_Battle.model
 {
     public class Mine : INotifyPropertyChanged
     {
-        private bool _isActive = true;
-        private Cell _cell;
-        private bool _isUsed;
+        private bool _isActive = true; // состояние мины
+        private Cell _cell; //расположение мины
+        private bool _isUsed; //использована ли мина
         private Cell _revealedCell; // Клетка, которую показал противник
 
-        public Cell Cell
+        public Cell Cell //Свойство для доступа к клетке
         {
             get => _cell;
             set
@@ -20,7 +20,7 @@ namespace Sea_Battle.model
             }
         }
 
-        public bool IsActive
+        public bool IsActive //Свойство для доступа к состоянию активности мины
         {
             get => _isActive;
             set
@@ -30,7 +30,7 @@ namespace Sea_Battle.model
             }
         }
 
-        public bool IsUsed
+        public bool IsUsed //Свойство для отслеживания, использована ли мина
         {
             get => _isUsed;
             set
@@ -39,7 +39,7 @@ namespace Sea_Battle.model
                 OnPropertyChanged();
             }
         }
-
+        //Свойство для клетки, которую показывает противник при срабатывании мины
         public Cell RevealedCell
         {
             get => _revealedCell;
@@ -49,8 +49,9 @@ namespace Sea_Battle.model
                 OnPropertyChanged();
             }
         }
-
+        //Объявление события требуемого интерфейсом
         public event PropertyChangedEventHandler PropertyChanged;
+        //автоматически подставляет имя свойства из которого был вызван метод
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
